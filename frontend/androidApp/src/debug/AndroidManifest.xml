@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Somente no build de debug: libera HTTP em texto claro para o backend local
+         (emulador usa http://10.0.2.2:8081). O build de release permanece restrito. -->
+    <application android:usesCleartextTraffic="true" />
+
+</manifest>
