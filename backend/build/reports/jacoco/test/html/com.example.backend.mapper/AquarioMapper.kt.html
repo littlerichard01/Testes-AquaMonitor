@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AquarioMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">AquarioMapper.kt</span></div><h1>AquarioMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.AquarioRequest
+import com.example.backend.dto.AquarioResponse
+import com.example.backend.entity.Aquario
+import com.example.backend.entity.Loja
+import com.example.backend.entity.StatusAquario
+import org.springframework.stereotype.Component
+
+<span class="nc" id="L10">@Component</span>
+class AquarioMapper {
+
+    fun paraEntidade(request: AquarioRequest, loja: Loja): Aquario {
+<span class="nc" id="L14">        return Aquario(</span>
+<span class="nc" id="L15">            nome = request.nome.trim(),</span>
+<span class="nc bnc" id="L16" title="All 6 branches missed.">            descricao = request.descricao?.trim()?.ifBlank { null },</span>
+<span class="nc" id="L17">            volumeLitros = request.volumeLitros,</span>
+<span class="nc" id="L18">            tipo = request.tipo,</span>
+<span class="nc bnc" id="L19" title="All 6 branches missed.">            localizacao = request.localizacao?.trim()?.ifBlank { null },</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">            status = request.status ?: StatusAquario.ATIVO,</span>
+<span class="nc" id="L21">            preco = request.preco,</span>
+<span class="nc" id="L22">            loja = loja</span>
+        )
+    }
+
+    fun atualizarEntidade(entidade: Aquario, request: AquarioRequest) {
+<span class="nc" id="L27">        entidade.nome = request.nome.trim()</span>
+<span class="nc bnc" id="L28" title="All 6 branches missed.">        entidade.descricao = request.descricao?.trim()?.ifBlank { null }</span>
+<span class="nc" id="L29">        entidade.volumeLitros = request.volumeLitros</span>
+<span class="nc" id="L30">        entidade.tipo = request.tipo</span>
+<span class="nc bnc" id="L31" title="All 6 branches missed.">        entidade.localizacao = request.localizacao?.trim()?.ifBlank { null }</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        entidade.status = request.status ?: StatusAquario.ATIVO</span>
+<span class="nc" id="L33">        entidade.preco = request.preco</span>
+<span class="nc" id="L34">    }</span>
+
+    fun paraResponse(entidade: Aquario): AquarioResponse {
+<span class="nc" id="L37">        return AquarioResponse(</span>
+<span class="nc" id="L38">            id = entidade.id!!,</span>
+<span class="nc" id="L39">            nome = entidade.nome,</span>
+<span class="nc" id="L40">            descricao = entidade.descricao,</span>
+<span class="nc" id="L41">            volumeLitros = entidade.volumeLitros,</span>
+<span class="nc" id="L42">            tipo = entidade.tipo,</span>
+<span class="nc" id="L43">            localizacao = entidade.localizacao,</span>
+<span class="nc" id="L44">            status = entidade.status,</span>
+<span class="nc" id="L45">            preco = entidade.preco,</span>
+<span class="nc" id="L46">            lojaId = entidade.loja.id!!,</span>
+<span class="nc" id="L47">            criadoEm = entidade.criadoEm,</span>
+<span class="nc" id="L48">            atualizadoEm = entidade.atualizadoEm</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

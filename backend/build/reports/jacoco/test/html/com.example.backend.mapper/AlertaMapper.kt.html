@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlertaMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">AlertaMapper.kt</span></div><h1>AlertaMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.AlertaRequest
+import com.example.backend.dto.AlertaResponse
+import com.example.backend.dto.AquarioResumo
+import com.example.backend.entity.Alerta
+import com.example.backend.entity.Aquario
+import org.springframework.stereotype.Component
+
+<span class="nc" id="L10">@Component</span>
+class AlertaMapper {
+
+    fun paraEntidade(request: AlertaRequest, aquario: Aquario): Alerta {
+<span class="nc" id="L14">        return Alerta(</span>
+<span class="nc" id="L15">            tipo = request.tipo,</span>
+<span class="nc" id="L16">            severidade = request.severidade,</span>
+<span class="nc bnc" id="L17" title="All 2 branches missed.">            ativo = request.ativo ?: true,</span>
+<span class="nc" id="L18">            aquario = aquario</span>
+        )
+    }
+
+    fun atualizarEntidade(request: AlertaRequest, entidade: Alerta, aquario: Aquario) {
+<span class="nc" id="L23">        entidade.tipo = request.tipo</span>
+<span class="nc" id="L24">        entidade.severidade = request.severidade</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        entidade.ativo = request.ativo ?: true</span>
+<span class="nc" id="L26">        entidade.aquario = aquario</span>
+<span class="nc" id="L27">    }</span>
+
+    fun paraResponse(entidade: Alerta): AlertaResponse {
+<span class="nc" id="L30">        return AlertaResponse(</span>
+<span class="nc" id="L31">            id = entidade.id!!,</span>
+<span class="nc" id="L32">            tipo = entidade.tipo,</span>
+<span class="nc" id="L33">            severidade = entidade.severidade,</span>
+<span class="nc" id="L34">            ativo = entidade.ativo,</span>
+<span class="nc" id="L35">            aquario = AquarioResumo(</span>
+<span class="nc" id="L36">                id = entidade.aquario.id!!,</span>
+<span class="nc" id="L37">                nome = entidade.aquario.nome,</span>
+<span class="nc" id="L38">                status = entidade.aquario.status</span>
+            ),
+<span class="nc" id="L40">            criadoEm = entidade.criadoEm,</span>
+<span class="nc" id="L41">            atualizadoEm = entidade.atualizadoEm</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

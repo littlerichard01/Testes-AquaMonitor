@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LojaService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">LojaService.kt</span></div><h1>LojaService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.config.TokenUtil
+import com.example.backend.dto.LojaAtualizacaoRequest
+import com.example.backend.dto.LojaLoginRequest
+import com.example.backend.dto.LojaRequest
+import com.example.backend.dto.LojaResponse
+import com.example.backend.dto.LoginResponse
+import com.example.backend.entity.Loja
+import com.example.backend.exception.CredenciaisIncorretasException
+import com.example.backend.exception.EmailJaCadastradoException
+import com.example.backend.exception.ErroValidacaoException
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.mapper.LojaMapper
+import com.example.backend.repository.LojaRepository
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+<span class="nc" id="L21">@Service</span>
+<span class="nc" id="L22">class LojaService(</span>
+<span class="nc" id="L23">    private val lojaRepository: LojaRepository,</span>
+<span class="nc" id="L24">    private val passwordEncoder: PasswordEncoder,</span>
+<span class="nc" id="L25">    private val tokenUtil: TokenUtil,</span>
+<span class="nc" id="L26">    private val lojaMapper: LojaMapper</span>
+) {
+
+    fun buscarPerfilAutenticado(): LojaResponse {
+<span class="nc" id="L30">        return lojaMapper.paraResponse(buscarLojaAutenticada())</span>
+    }
+
+    @Transactional
+    fun cadastrar(request: LojaRequest): LojaResponse {
+<span class="nc" id="L35">        val emailTratado = request.email.trim().lowercase()</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (lojaRepository.existsByEmail(emailTratado)) {</span>
+<span class="nc" id="L38">            throw EmailJaCadastradoException(&quot;Este email ja esta cadastrado no sistema.&quot;)</span>
+        }
+
+<span class="nc" id="L41">        val senhaLimpaNaoNula: String? = request.senha</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        val senhaLimpa: String = requireNotNull(senhaLimpaNaoNula) { &quot;Senha nao informada.&quot; }</span>
+<span class="nc" id="L43">        val senhaCriptografadaRaw: CharSequence? = passwordEncoder.encode(senhaLimpa)</span>
+<span class="nc" id="L44">        val senhaCriptografada: String = senhaCriptografadaRaw.toString()</span>
+
+<span class="nc" id="L46">        val novaLoja = lojaMapper.paraEntidade(request, senhaCriptografada)</span>
+
+<span class="nc" id="L48">        val lojaSalva = lojaRepository.save(novaLoja)</span>
+<span class="nc" id="L49">        return lojaMapper.paraResponse(lojaSalva)</span>
+    }
+
+    fun login(request: LojaLoginRequest): LoginResponse {
+<span class="nc" id="L53">        val emailTratado = request.email.trim().lowercase()</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        val loja = lojaRepository.findByEmail(emailTratado)</span>
+<span class="nc" id="L56">            ?: throw CredenciaisIncorretasException(&quot;Email ou senha incorretos.&quot;)</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (!loja.ativo) {</span>
+<span class="nc" id="L59">            throw CredenciaisIncorretasException(&quot;Conta inativa, contate o suporte.&quot;)</span>
+        }
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (!passwordEncoder.matches(request.senha, loja.senha)) {</span>
+<span class="nc" id="L63">            throw CredenciaisIncorretasException(&quot;Email ou senha incorretos.&quot;)</span>
+        }
+
+<span class="nc" id="L66">        val token = tokenUtil.gerarToken(loja.email)</span>
+<span class="nc" id="L67">        return LoginResponse(</span>
+<span class="nc" id="L68">            token = token,</span>
+<span class="nc" id="L69">            lojaId = loja.id!!,</span>
+<span class="nc" id="L70">            nomeLoja = loja.nome,</span>
+<span class="nc" id="L71">            emailLoja = loja.email</span>
+        )
+    }
+
+    @Transactional
+    fun atualizar(id: Long, request: LojaAtualizacaoRequest): LojaResponse {
+<span class="nc" id="L77">        val lojaAlvo = buscarEntidadeOuFalhar(id)</span>
+<span class="nc" id="L78">        val lojaAutenticada = buscarLojaAutenticada()</span>
+
+<span class="nc" id="L80">        requirePertenceALojaAutenticada(lojaAlvo, lojaAutenticada)</span>
+
+<span class="nc" id="L82">        val emailTratado = request.email.trim().lowercase()</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (lojaRepository.existsByEmailAndIdNot(emailTratado, id)) {</span>
+<span class="nc" id="L84">            throw EmailJaCadastradoException(&quot;Este email ja esta cadastrado no sistema.&quot;)</span>
+        }
+
+<span class="nc" id="L87">        lojaMapper.atualizarEntidade(lojaAlvo, request)</span>
+
+<span class="nc bnc" id="L89" title="All 6 branches missed.">        val senhaInformada: String? = request.senha?.trim()?.ifBlank { null }</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (senhaInformada != null) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            if (senhaInformada.length &lt; 6) {</span>
+<span class="nc" id="L92">                throw ErroValidacaoException(&quot;Senha deve ter pelo menos 6 caracteres.&quot;)</span>
+            }
+<span class="nc" id="L94">            val senhaCodificadaRaw: CharSequence? = passwordEncoder.encode(senhaInformada)</span>
+<span class="nc" id="L95">            lojaAlvo.senha = senhaCodificadaRaw.toString()</span>
+        }
+
+<span class="nc" id="L98">        val atualizada = lojaRepository.save(lojaAlvo)</span>
+<span class="nc" id="L99">        return lojaMapper.paraResponse(atualizada)</span>
+    }
+
+    @Transactional
+    fun excluir(id: Long) {
+<span class="nc" id="L104">        val lojaAlvo = buscarEntidadeOuFalhar(id)</span>
+<span class="nc" id="L105">        val lojaAutenticada = buscarLojaAutenticada()</span>
+
+<span class="nc" id="L107">        requirePertenceALojaAutenticada(lojaAlvo, lojaAutenticada)</span>
+
+<span class="nc" id="L109">        lojaRepository.delete(lojaAlvo)</span>
+<span class="nc" id="L110">    }</span>
+
+    fun buscarLojaAutenticada(): Loja {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        val authentication = SecurityContextHolder.getContext().authentication</span>
+<span class="nc" id="L114">            ?: throw CredenciaisIncorretasException(&quot;Loja nao autenticada.&quot;)</span>
+
+<span class="nc" id="L116">        val email = authentication.name</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        return lojaRepository.findByEmail(email)</span>
+<span class="nc" id="L118">            ?: throw CredenciaisIncorretasException(&quot;Loja autenticada nao encontrada.&quot;)</span>
+    }
+
+    fun buscarPorEmail(email: String): Loja? {
+<span class="nc" id="L122">        val emailTratado = email.trim().lowercase()</span>
+<span class="nc" id="L123">        return lojaRepository.findByEmail(emailTratado)</span>
+    }
+
+    private fun buscarEntidadeOuFalhar(id: Long): Loja {
+<span class="nc" id="L127">        return lojaRepository.findById(id).orElseThrow {</span>
+<span class="nc" id="L128">            RegraNaoEncontradoException(&quot;Loja com id $id nao foi encontrada.&quot;)</span>
+        }
+    }
+
+    private fun requirePertenceALojaAutenticada(alvo: Loja, autenticada: Loja) {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (alvo.id != autenticada.id) {</span>
+<span class="nc" id="L134">            throw ErroValidacaoException(&quot;Voce nao tem permissao para modificar esta loja.&quot;)</span>
+        }
+<span class="nc" id="L136">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

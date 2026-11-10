@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecimeService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">EspecimeService.kt</span></div><h1>EspecimeService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.dto.EspecimeRequest
+import com.example.backend.dto.EspecimeResponse
+import com.example.backend.entity.Especime
+import com.example.backend.entity.StatusEspecime
+import com.example.backend.exception.ErroValidacaoException
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.mapper.EspecimeMapper
+import com.example.backend.repository.EspecieRepository
+import com.example.backend.repository.EspecimeRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+import java.time.LocalDate
+
+<span class="nc" id="L17">@Service</span>
+<span class="nc" id="L18">class EspecimeService(</span>
+<span class="nc" id="L19">    private val repository: EspecimeRepository,</span>
+<span class="nc" id="L20">    private val especieRepository: EspecieRepository,</span>
+<span class="nc" id="L21">    private val aquarioService: AquarioService,</span>
+<span class="nc" id="L22">    private val lojaService: LojaService,</span>
+<span class="nc" id="L23">    private val mapper: EspecimeMapper</span>
+) {
+
+    fun listarTodosDaLoja(): List&lt;EspecimeResponse&gt; {
+<span class="nc" id="L27">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L28">        return repository.findAllByLojaId(lojaAutenticada.id!!).map(mapper::paraResponse)</span>
+    }
+
+    fun buscarPorIdDaLoja(id: Long): EspecimeResponse {
+<span class="nc" id="L32">        return mapper.paraResponse(buscarEntidadeDaLojaOuFalhar(id))</span>
+    }
+
+    fun buscarEntidadeDaLojaOuFalhar(id: Long): Especime {
+<span class="nc" id="L36">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        return repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L38">            ?: throw RegraNaoEncontradoException(&quot;Especime com id $id nao foi encontrado na sua loja.&quot;)</span>
+    }
+
+    fun entidadePertenceALoja(id: Long): Boolean {
+<span class="nc" id="L42">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L43">        return repository.existsByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+    }
+
+    @Transactional
+    fun criar(request: EspecimeRequest): EspecimeResponse {
+<span class="nc" id="L48">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L49">        validarRequest(</span>
+<span class="nc" id="L50">            identificacao = request.identificacao,</span>
+<span class="nc" id="L51">            preco = request.preco,</span>
+<span class="nc" id="L52">            especieId = request.especieId,</span>
+<span class="nc" id="L53">            aquarioId = request.aquarioId,</span>
+<span class="nc" id="L54">            dataEntrada = request.dataEntrada</span>
+        )
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (repository.existsByIdentificacao(request.identificacao)) {</span>
+<span class="nc" id="L58">            throw ErroValidacaoException(&quot;Ja existe um especime com esta identificacao.&quot;)</span>
+        }
+
+<span class="nc" id="L61">        val especie = especieRepository.findById(request.especieId).orElseThrow {</span>
+<span class="nc" id="L62">            RegraNaoEncontradoException(&quot;Especie com id ${request.especieId} nao existe.&quot;)</span>
+        }
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        val aquario = request.aquarioId?.let(aquarioService::buscarEntidadeDaLojaOuFalhar)</span>
+
+<span class="nc" id="L66">        val entidade = mapper.paraEntidade(request, especie, aquario, lojaAutenticada)</span>
+
+<span class="nc" id="L68">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun atualizar(id: Long, request: EspecimeRequest): EspecimeResponse {
+<span class="nc" id="L73">        validarRequest(</span>
+<span class="nc" id="L74">            identificacao = request.identificacao,</span>
+<span class="nc" id="L75">            preco = request.preco,</span>
+<span class="nc" id="L76">            especieId = request.especieId,</span>
+<span class="nc" id="L77">            aquarioId = request.aquarioId,</span>
+<span class="nc" id="L78">            dataEntrada = request.dataEntrada</span>
+        )
+<span class="nc" id="L80">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+
+        // Removido o .trim()
+<span class="nc" id="L83">        val identificacaoNova = request.identificacao</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (repository.existsByIdentificacaoAndIdNot(identificacaoNova, id)) {</span>
+<span class="nc" id="L85">            throw ErroValidacaoException(&quot;Ja existe outro especime com esta identificacao.&quot;)</span>
+        }
+
+<span class="nc" id="L88">        val especie = especieRepository.findById(request.especieId).orElseThrow {</span>
+<span class="nc" id="L89">            RegraNaoEncontradoException(&quot;Especie com id ${request.especieId} nao existe.&quot;)</span>
+        }
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        val aquario = request.aquarioId?.let(aquarioService::buscarEntidadeDaLojaOuFalhar)</span>
+
+<span class="nc" id="L93">        mapper.atualizarEntidade(request, entidade, especie, aquario)</span>
+
+<span class="nc" id="L95">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun excluir(id: Long) {
+<span class="nc" id="L100">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="nc" id="L101">        repository.delete(entidade)</span>
+<span class="nc" id="L102">    }</span>
+
+    private fun validarRequest(
+        identificacao: String,
+        preco: BigDecimal,
+        especieId: Long,
+        aquarioId: Long?,
+        dataEntrada: LocalDate?
+    ) {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (identificacao.isBlank()) {</span>
+<span class="nc" id="L112">            throw ErroValidacaoException(&quot;Identificacao nao pode ser vazia.&quot;)</span>
+        }
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (preco.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="nc" id="L115">            throw ErroValidacaoException(&quot;Preco do especime deve ser maior que zero.&quot;)</span>
+        }
+<span class="nc bnc" id="L117" title="All 4 branches missed.">        if (aquarioId != null &amp;&amp; !aquarioService.entidadePertenceALoja(aquarioId)) {</span>
+<span class="nc" id="L118">            throw ErroValidacaoException(&quot;Aquario com id $aquarioId nao pertence a sua loja.&quot;)</span>
+        }
+<span class="nc bnc" id="L120" title="All 4 branches missed.">        if (dataEntrada != null &amp;&amp; dataEntrada.isAfter(LocalDate.now())) {</span>
+<span class="nc" id="L121">            throw ErroValidacaoException(&quot;Data de entrada nao pode ser no futuro.&quot;)</span>
+        }
+<span class="nc" id="L123">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LeituraTemperaturaRequest.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">LeituraTemperaturaRequest.kt</span></div><h1>LeituraTemperaturaRequest.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.PositiveOrZero
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+<span class="nc" id="L9">@Schema(</span>
+    description = &quot;Requisicao para registrar uma LeituraTemperatura. Normalmente esta requisicao e feita automaticamente pelo backend apos receber uma mensagem MQTT, mas pode ser usada via API para testes.&quot;
+)
+<span class="nc" id="L12">data class LeituraTemperaturaRequest(</span>
+<span class="nc" id="L13">    @field:NotNull(message = &quot;Temperatura medida e obrigatoria&quot;)</span>
+    @field:PositiveOrZero(message = &quot;Temperatura invalida&quot;)
+    @Schema(description = &quot;Valor medido pelo sensor em graus Celsius&quot;, example = &quot;26.50&quot;)
+<span class="nc" id="L16">    val temperatura: BigDecimal,</span>
+
+<span class="nc" id="L18">    @Schema(description = &quot;Data/hora da leitura. Default = agora&quot;, nullable = true)</span>
+<span class="nc" id="L19">    val dataHora: LocalDateTime? = LocalDateTime.now(),</span>
+
+<span class="nc" id="L21">    @field:NotNull(message = &quot;ID do aquario e obrigatorio&quot;)</span>
+    @Schema(description = &quot;ID do Aquario de onde veio a leitura&quot;, example = &quot;3&quot;)
+<span class="nc" id="L23">    val aquarioId: Long,</span>
+
+<span class="nc" id="L25">    @field:NotNull(message = &quot;ID do dispositivo IoT e obrigatorio&quot;)</span>
+    @Schema(description = &quot;ID do DispositivoIoT que mediu a temperatura&quot;, example = &quot;2&quot;)
+<span class="nc" id="L27">    val dispositivoIoTId: Long</span>
+<span class="nc" id="L28">)</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

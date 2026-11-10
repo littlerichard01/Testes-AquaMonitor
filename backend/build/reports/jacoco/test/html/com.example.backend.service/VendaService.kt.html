@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VendaService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">VendaService.kt</span></div><h1>VendaService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.dto.VendaRequest
+import com.example.backend.dto.VendaResponse
+import com.example.backend.entity.Aquario
+import com.example.backend.entity.Especime
+import com.example.backend.entity.StatusAquario
+import com.example.backend.entity.StatusEspecime
+import com.example.backend.entity.Venda
+import com.example.backend.exception.ErroValidacaoException
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.mapper.VendaMapper
+import com.example.backend.repository.AquarioRepository
+import com.example.backend.repository.EspecimeRepository
+import com.example.backend.repository.VendaRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+<span class="fc" id="L21">@Service</span>
+<span class="fc" id="L22">class VendaService(</span>
+<span class="fc" id="L23">    private val repository: VendaRepository,</span>
+<span class="fc" id="L24">    private val aquarioRepository: AquarioRepository,</span>
+<span class="fc" id="L25">    private val especimeRepository: EspecimeRepository,</span>
+<span class="fc" id="L26">    private val compradorService: CompradorService,</span>
+<span class="fc" id="L27">    private val aquarioService: AquarioService,</span>
+<span class="fc" id="L28">    private val especimeService: EspecimeService,</span>
+<span class="fc" id="L29">    private val lojaService: LojaService,</span>
+<span class="fc" id="L30">    private val mapper: VendaMapper</span>
+) {
+
+    fun listarTodosDaLoja(): List&lt;VendaResponse&gt; {
+<span class="nc" id="L34">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L35">        return repository.findAllByLojaId(lojaAutenticada.id!!).map(mapper::paraResponse)</span>
+    }
+
+    fun buscarPorIdDaLoja(id: Long): VendaResponse {
+<span class="nc" id="L39">        return mapper.paraResponse(buscarEntidadeDaLojaOuFalhar(id))</span>
+    }
+
+    private fun buscarEntidadeDaLojaOuFalhar(id: Long): Venda {
+<span class="fc" id="L43">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        return repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="fc" id="L45">            ?: throw RegraNaoEncontradoException(&quot;Venda com id $id nao foi encontrada na sua loja.&quot;)</span>
+    }
+
+    @Transactional
+    fun criar(request: VendaRequest): VendaResponse {
+<span class="fc" id="L50">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="fc" id="L51">        validarRequest(request)</span>
+
+<span class="fc" id="L53">        val comprador = compradorService.buscarEntidadeDaLojaOuFalhar(request.compradorId)</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        val especimeAlvo: Especime? = request.especimeId?.let { id -&gt;</span>
+<span class="fc" id="L56">            val entidade = especimeService.buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (entidade.status == StatusEspecime.VENDIDO) {</span>
+<span class="fc" id="L58">                throw ErroValidacaoException(</span>
+<span class="fc" id="L59">                    &quot;Especime com id $id ja esta vendido (status VENDIDO) e nao pode ser vendido novamente.&quot;</span>
+                )
+            }
+<span class="fc" id="L62">            entidade</span>
+        }
+
+<span class="pc bfc" id="L65" title="All 2 branches covered.">        val aquarioAlvo: Aquario? = request.aquarioId?.let { id -&gt;</span>
+<span class="fc" id="L66">            val entidade = aquarioService.buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">            if (entidade.status == StatusAquario.VENDIDO) {</span>
+<span class="fc" id="L68">                throw ErroValidacaoException(</span>
+<span class="fc" id="L69">                    &quot;Aquario com id $id ja esta vendido (status VENDIDO) e nao pode ser vendido novamente.&quot;</span>
+                )
+            }
+<span class="nc" id="L72">            entidade</span>
+        }
+
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (especimeAlvo != null) {</span>
+<span class="fc" id="L76">            especimeAlvo.status = StatusEspecime.VENDIDO</span>
+<span class="fc" id="L77">            especimeRepository.save(especimeAlvo)</span>
+        }
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (aquarioAlvo != null) {</span>
+<span class="nc" id="L80">            aquarioAlvo.status = StatusAquario.VENDIDO</span>
+<span class="nc" id="L81">            aquarioRepository.save(aquarioAlvo)</span>
+        }
+
+
+<span class="fc" id="L85">        val venda = mapper.paraEntidade(request, comprador, especimeAlvo, aquarioAlvo, lojaAutenticada)</span>
+<span class="fc" id="L86">        return mapper.paraResponse(repository.save(venda))</span>
+    }
+
+    @Transactional
+    fun atualizar(id: Long, request: VendaRequest): VendaResponse {
+<span class="nc" id="L91">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        val venda = repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L94">            ?: throw RegraNaoEncontradoException(&quot;Venda com id $id nao foi encontrada na sua loja.&quot;)</span>
+
+<span class="nc" id="L96">        validarRequest(request)</span>
+
+<span class="nc" id="L98">        val comprador = compradorService.buscarEntidadeDaLojaOuFalhar(request.compradorId)</span>
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        venda.especime?.let {</span>
+<span class="nc" id="L101">            it.status = StatusEspecime.DISPONIVEL</span>
+<span class="nc" id="L102">            especimeRepository.save(it)</span>
+        }
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        venda.aquario?.let {</span>
+<span class="nc" id="L105">            it.status = StatusAquario.ATIVO</span>
+<span class="nc" id="L106">            aquarioRepository.save(it)</span>
+        }
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        val novoEspecime: Especime? = request.especimeId?.let { espId -&gt;</span>
+<span class="nc" id="L110">            val entidade = especimeService.buscarEntidadeDaLojaOuFalhar(espId)</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (entidade.status == StatusEspecime.VENDIDO) {</span>
+<span class="nc" id="L112">                throw ErroValidacaoException(&quot;Especime com id $espId ja esta vendido e nao pode ser vendido novamente.&quot;)</span>
+            }
+<span class="nc" id="L114">            entidade</span>
+        }
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        val novoAquario: Aquario? = request.aquarioId?.let { aqId -&gt;</span>
+<span class="nc" id="L118">            val entidade = aquarioService.buscarEntidadeDaLojaOuFalhar(aqId)</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (entidade.status == StatusAquario.VENDIDO) {</span>
+<span class="nc" id="L120">                throw ErroValidacaoException(&quot;Aquario com id $aqId ja esta vendido e nao pode ser vendido novamente.&quot;)</span>
+            }
+<span class="nc" id="L122">            entidade</span>
+        }
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        novoEspecime?.let {</span>
+<span class="nc" id="L126">            it.status = StatusEspecime.VENDIDO</span>
+<span class="nc" id="L127">            especimeRepository.save(it)</span>
+        }
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        novoAquario?.let {</span>
+<span class="nc" id="L130">            it.status = StatusAquario.VENDIDO</span>
+<span class="nc" id="L131">            aquarioRepository.save(it)</span>
+        }
+
+<span class="nc" id="L134">        venda.valor = request.valor</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        venda.dataVenda = request.dataVenda ?: LocalDateTime.now()</span>
+<span class="nc bnc" id="L136" title="All 6 branches missed.">        venda.observacoes = request.observacoes?.trim()?.ifBlank { null }</span>
+<span class="nc" id="L137">        venda.comprador = comprador</span>
+<span class="nc" id="L138">        venda.especime = novoEspecime</span>
+<span class="nc" id="L139">        venda.aquario = novoAquario</span>
+
+<span class="nc" id="L141">        val atualizada = repository.save(venda)</span>
+<span class="nc" id="L142">        return mapper.paraResponse(atualizada)</span>
+    }
+
+    private fun validarRequest(request: VendaRequest) {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (request.valor.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L147">            throw ErroValidacaoException(&quot;Valor da venda deve ser maior que zero.&quot;)</span>
+        }
+<span class="fc" id="L149">        val informados = listOfNotNull(request.especimeId, request.aquarioId).size</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (informados != 1) {</span>
+<span class="fc" id="L151">            throw ErroValidacaoException(</span>
+<span class="fc" id="L152">                &quot;Regra XOR: informe EXATAMENTE UM entre especimeId e aquarioId (foram informados $informados).&quot;</span>
+            )
+        }
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">        if (request.dataVenda != null &amp;&amp; request.dataVenda.isAfter(LocalDateTime.now())) {</span>
+<span class="fc" id="L156">            throw ErroValidacaoException(&quot;Data da venda nao pode ser no futuro.&quot;)</span>
+        }
+<span class="fc" id="L158">    }</span>
+
+    @Transactional
+    fun remover(id: Long) {
+<span class="nc" id="L162">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        val venda = repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L164">            ?: throw RegraNaoEncontradoException(&quot;Venda com id $id nao foi encontrada na sua loja.&quot;)</span>
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        venda.especime?.let { especime -&gt;</span>
+<span class="nc" id="L167">            especime.status = StatusEspecime.DISPONIVEL</span>
+<span class="nc" id="L168">            especimeRepository.save(especime)</span>
+        }
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        venda.aquario?.let { aquario -&gt;</span>
+<span class="nc" id="L172">            aquario.status = StatusAquario.ATIVO</span>
+<span class="nc" id="L173">            aquarioRepository.save(aquario)</span>
+        }
+
+<span class="nc" id="L176">        repository.delete(venda)</span>
+<span class="nc" id="L177">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

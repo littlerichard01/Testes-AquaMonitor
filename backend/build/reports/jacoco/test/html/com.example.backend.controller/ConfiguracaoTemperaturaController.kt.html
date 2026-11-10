@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfiguracaoTemperaturaController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">ConfiguracaoTemperaturaController.kt</span></div><h1>ConfiguracaoTemperaturaController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.ConfiguracaoTemperaturaRequest
+import com.example.backend.dto.ConfiguracaoTemperaturaResponse
+import com.example.backend.service.ConfiguracaoTemperaturaService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/configuracoes-temperatura&quot;)
+@Tag(
+    name = &quot;Configuracoes de Temperatura&quot;,
+    description = &quot;CRUD de ConfiguracaoTemperatura. Regra 1:1 por Aquario (cada aquario tem no maximo uma configuracao).&quot;
+)
+<span class="nc" id="L24">class ConfiguracaoTemperaturaController(</span>
+<span class="nc" id="L25">    private val service: ConfiguracaoTemperaturaService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista as configuracoes de temperatura da loja autenticada&quot;,
+        description = &quot;Traz apenas as configuracoes associadas a aquarios da loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(): ResponseEntity&lt;List&lt;ConfiguracaoTemperaturaResponse&gt;&gt; {
+<span class="nc" id="L39">        return ResponseEntity.ok(service.listarTodosDaLoja())</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca uma configuracao de temperatura por ID&quot;,
+        description = &quot;404 se nao existir ou o aquario pertencer a outra loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Configuracao encontrada&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Configuracao nao encontrada na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID da configuracao de temperatura&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;ConfiguracaoTemperaturaResponse&gt; {
+<span class="nc" id="L59">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Cria uma nova configuracao de temperatura&quot;,
+        description = &quot;Valida que o aquario pertence a loja, que temperatura minima &lt;= maxima e que nao existe outra configuracao para o mesmo aquario.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Configuracao criada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Aquario ja tem configuracao, limites invalidos ou aquario de outra loja&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario referenciado nao encontrado na loja&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: ConfiguracaoTemperaturaRequest)
+        : ResponseEntity&lt;ConfiguracaoTemperaturaResponse&gt; {
+<span class="nc" id="L77">        val nova = service.criar(request)</span>
+<span class="nc" id="L78">        return ResponseEntity.status(HttpStatus.CREATED).body(nova)</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza uma configuracao de temperatura existente&quot;,
+        description = &quot;Permite inclusive mudar o aquario associado, respeitando a regra 1:1.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Atualizada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Configuracao ou aquario nao encontrado na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID da configuracao que sera atualizada&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: ConfiguracaoTemperaturaRequest
+    ): ResponseEntity&lt;ConfiguracaoTemperaturaResponse&gt; {
+<span class="nc" id="L97">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui uma configuracao de temperatura&quot;,
+        description = &quot;Exclui apenas se pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Excluida com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Configuracao nao encontrada na loja&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID da configuracao que sera excluida&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L115">        service.excluir(id)</span>
+<span class="nc" id="L116">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

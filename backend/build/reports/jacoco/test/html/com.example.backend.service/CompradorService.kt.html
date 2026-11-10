@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompradorService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">CompradorService.kt</span></div><h1>CompradorService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.dto.CompradorRequest
+import com.example.backend.dto.CompradorResponse
+import com.example.backend.entity.Comprador
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.repository.CompradorRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import com.example.backend.mapper.CompradorMapper
+
+<span class="nc" id="L12">@Service</span>
+<span class="nc" id="L13">class CompradorService(</span>
+<span class="nc" id="L14">    private val repository: CompradorRepository,</span>
+<span class="nc" id="L15">    private val lojaService: LojaService,</span>
+<span class="nc" id="L16">    private val mapper: CompradorMapper</span>
+) {
+
+    fun listarTodosDaLoja(): List&lt;CompradorResponse&gt; {
+<span class="nc" id="L20">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+
+<span class="nc" id="L22">        return repository.findAllByLojaId(lojaAutenticada.id!!)</span>
+<span class="nc" id="L23">            .map(mapper::paraResponse)</span>
+    }
+
+    fun buscarPorIdDaLoja(id: Long): CompradorResponse {
+<span class="nc" id="L27">        return mapper.paraResponse(buscarEntidadeDaLojaOuFalhar(id))</span>
+    }
+
+    fun buscarEntidadeDaLojaOuFalhar(id: Long): Comprador {
+
+<span class="nc" id="L32">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        return repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L34">            ?: throw RegraNaoEncontradoException(&quot;Comprador com id $id nao foi encontrado na sua loja.&quot;)</span>
+    }
+
+    fun entidadePertenceALoja(id: Long): Boolean {
+<span class="nc" id="L38">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L39">        return repository.existsByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+    }
+
+    @Transactional
+    fun criar(request: CompradorRequest): CompradorResponse {
+<span class="nc" id="L44">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+
+<span class="nc" id="L46">        val entidade = mapper.paraEntidade(request, lojaAutenticada)</span>
+<span class="nc" id="L47">        val salvo = repository.save(entidade)</span>
+
+<span class="nc" id="L49">        return mapper.paraResponse(salvo)</span>
+    }
+
+    @Transactional
+    fun atualizar(
+        id: Long,
+        request: CompradorRequest
+    ): CompradorResponse {
+<span class="nc" id="L57">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+
+<span class="nc" id="L59">        mapper.atualizarEntidade(entidade, request)</span>
+
+<span class="nc" id="L61">        val salvo = repository.save(entidade)</span>
+
+<span class="nc" id="L63">        return mapper.paraResponse(salvo)</span>
+    }
+
+    @Transactional
+    fun excluir(id: Long) {
+<span class="nc" id="L68">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L69">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+
+<span class="nc" id="L71">        lojaAutenticada.compradores.remove(entidade)</span>
+<span class="nc" id="L72">        entidade.lojas.remove(lojaAutenticada)</span>
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (entidade.lojas.isEmpty()) {</span>
+<span class="nc" id="L75">            repository.delete(entidade)</span>
+        }
+<span class="nc" id="L77">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

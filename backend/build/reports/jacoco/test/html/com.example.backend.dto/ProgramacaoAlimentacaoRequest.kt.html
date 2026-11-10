@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProgramacaoAlimentacaoRequest.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">ProgramacaoAlimentacaoRequest.kt</span></div><h1>ProgramacaoAlimentacaoRequest.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
+
+<span class="nc" id="L8">@Schema(description = &quot;Requisicao para criar ou atualizar uma ProgramacaoAlimentacao de um Aquario.&quot;)</span>
+<span class="nc" id="L9">data class ProgramacaoAlimentacaoRequest(</span>
+<span class="nc" id="L10">    @field:NotBlank(message = &quot;Horario e obrigatorio&quot;)</span>
+    @field:Pattern(regexp = &quot;^([01]\\d|2[0-3]):[0-5]\\d$&quot;, message = &quot;Horario deve estar no formato HH:mm&quot;)
+    @Schema(description = &quot;Horario no formato HH:mm (24h)&quot;, example = &quot;08:00&quot;)
+<span class="nc" id="L13">    val horario: String,</span>
+
+<span class="nc" id="L15">    @Schema(description = &quot;Descricao opcional&quot;, nullable = true, example = &quot;Alimentacao da manha com flocos&quot;)</span>
+<span class="nc" id="L16">    val descricao: String? = null,</span>
+
+<span class="nc" id="L18">    @Schema(description = &quot;Se a programacao esta ativa. Default = true&quot;, example = &quot;true&quot;, nullable = true)</span>
+<span class="nc" id="L19">    val ativo: Boolean? = true,</span>
+
+<span class="nc" id="L21">    @field:NotNull(message = &quot;ID do aquario e obrigatorio&quot;)</span>
+    @Schema(description = &quot;ID do Aquario associado&quot;, example = &quot;3&quot;)
+<span class="nc" id="L23">    val aquarioId: Long</span>
+<span class="nc" id="L24">)</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

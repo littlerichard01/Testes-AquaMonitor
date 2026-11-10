@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecieMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">EspecieMapper.kt</span></div><h1>EspecieMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.EspecieRequest
+import com.example.backend.dto.EspecieResponse
+import com.example.backend.entity.Especie
+import com.example.backend.entity.Loja
+import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+
+<span class="nc" id="L10">@Component</span>
+class EspecieMapper {
+
+    fun paraEntidade(request: EspecieRequest): Especie {
+<span class="nc" id="L14">        return Especie(</span>
+<span class="nc" id="L15">            nomePopular = request.nomePopular.trim(),</span>
+<span class="nc bnc" id="L16" title="All 6 branches missed.">            nomeCientifico = request.nomeCientifico?.trim()?.ifBlank { null },</span>
+<span class="nc" id="L17">            tipo = request.tipo,</span>
+<span class="nc bnc" id="L18" title="All 6 branches missed.">            descricao = request.descricao?.trim()?.ifBlank { null },</span>
+<span class="nc" id="L19">            temperaturaMinima = request.temperaturaMinima,</span>
+<span class="nc" id="L20">            temperaturaMaxima = request.temperaturaMaxima</span>
+        )
+    }
+
+    fun atualizarEntidade(entidade: Especie, request: EspecieRequest): Especie {
+<span class="nc" id="L25">        entidade.nomePopular = request.nomePopular.trim()</span>
+<span class="nc bnc" id="L26" title="All 6 branches missed.">        entidade.nomeCientifico = request.nomeCientifico?.trim()?.ifBlank { null }</span>
+<span class="nc" id="L27">        entidade.tipo = request.tipo</span>
+<span class="nc bnc" id="L28" title="All 6 branches missed.">        entidade.descricao = request.descricao?.trim()?.ifBlank { null }</span>
+<span class="nc" id="L29">        entidade.temperaturaMinima = request.temperaturaMinima</span>
+<span class="nc" id="L30">        entidade.temperaturaMaxima = request.temperaturaMaxima</span>
+<span class="nc" id="L31">        return entidade</span>
+    }
+
+    fun paraResponse(entidade: Especie): EspecieResponse {
+<span class="nc" id="L35">        return EspecieResponse(</span>
+<span class="nc" id="L36">            id = entidade.id!!,</span>
+<span class="nc" id="L37">            nomePopular = entidade.nomePopular,</span>
+<span class="nc" id="L38">            nomeCientifico = entidade.nomeCientifico,</span>
+<span class="nc" id="L39">            tipo = entidade.tipo,</span>
+<span class="nc" id="L40">            descricao = entidade.descricao,</span>
+<span class="nc" id="L41">            temperaturaMinima = entidade.temperaturaMinima,</span>
+<span class="nc" id="L42">            temperaturaMaxima = entidade.temperaturaMaxima,</span>
+<span class="nc" id="L43">            criadoEm = entidade.criadoEm,</span>
+<span class="nc" id="L44">            atualizadoEm = entidade.atualizadoEm</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

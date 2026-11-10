@@ -2,8 +2,9 @@
 # Gradle
 # ============================================================
 .gradle/
-**/build/
+# **/build/
 !src/**/build/
+!**/build/reports/
 
 # Gradle wrapper (jar ja e comitado, mas ignore props locais)
 gradle-app.setting

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.kt</span></div><h1>GlobalExceptionHandler.kt</h1><pre class="source lang-java linenums">package com.example.backend.exception
+
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
+
+<span class="nc" id="L9">data class ErroDTO(</span>
+<span class="nc" id="L10">    val mensagem: String,</span>
+<span class="nc" id="L11">    val codigoHttp: Int,</span>
+<span class="nc" id="L12">    val errosCampos: Map&lt;String, String&gt;? = null</span>
+<span class="nc" id="L13">)</span>
+
+<span class="nc" id="L15">@ControllerAdvice</span>
+class GlobalExceptionHandler {
+
+    @ExceptionHandler(RegraNaoEncontradoException::class)
+    fun tratarNaoEncontrado(ex: RegraNaoEncontradoException): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        val dto = ErroDTO(mensagem = ex.message ?: &quot;Recurso nao encontrado&quot;, codigoHttp = 404)</span>
+<span class="nc" id="L21">        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(dto)</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun tratarValidacaoDeCampos(ex: MethodArgumentNotValidException): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc" id="L26">        val erros = ex.bindingResult.fieldErrors.associate { campo -&gt;</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">            campo.field to (campo.defaultMessage ?: &quot;Campo invalido&quot;)</span>
+        }
+<span class="nc" id="L29">        val dto = ErroDTO(</span>
+<span class="nc" id="L30">            mensagem = &quot;Foram encontrados erros de validacao na requisicao&quot;,</span>
+<span class="nc" id="L31">            codigoHttp = 400,</span>
+<span class="nc" id="L32">            errosCampos = erros</span>
+        )
+<span class="nc" id="L34">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto)</span>
+    }
+
+    @ExceptionHandler(ErroValidacaoException::class)
+    fun tratarRegraNegocio(ex: ErroValidacaoException): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        val dto = ErroDTO(mensagem = ex.message ?: &quot;Erro de validacao&quot;, codigoHttp = 400)</span>
+<span class="nc" id="L40">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto)</span>
+    }
+
+    @ExceptionHandler(EmailJaCadastradoException::class)
+    fun tratarEmailDuplicado(ex: EmailJaCadastradoException): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        val dto = ErroDTO(mensagem = ex.message ?: &quot;Este e-mail já está cadastrado.&quot;, codigoHttp = 400)</span>
+<span class="nc" id="L46">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto)</span>
+    }
+
+    @ExceptionHandler(CredenciaisIncorretasException::class)
+    fun tratarCredenciaisIncorretas(ex: CredenciaisIncorretasException): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        val dto = ErroDTO(mensagem = ex.message ?: &quot;E-mail ou senha incorretos.&quot;, codigoHttp = 401)</span>
+<span class="nc" id="L52">        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dto)</span>
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun tratarGenerico(ex: Exception): ResponseEntity&lt;ErroDTO&gt; {
+<span class="nc" id="L57">        val dto = ErroDTO(mensagem = &quot;Erro interno no servidor: ${ex.message}&quot;, codigoHttp = 500)</span>
+<span class="nc" id="L58">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

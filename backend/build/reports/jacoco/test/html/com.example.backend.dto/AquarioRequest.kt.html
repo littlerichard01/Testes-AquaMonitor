@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AquarioRequest.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">AquarioRequest.kt</span></div><h1>AquarioRequest.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import com.example.backend.entity.StatusAquario
+import com.example.backend.entity.TipoAquario
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
+import java.math.BigDecimal
+
+<span class="nc" id="L11">@Schema(description = &quot;Requisicao para criar ou atualizar um Aquario.&quot;)</span>
+<span class="nc" id="L12">data class AquarioRequest(</span>
+<span class="nc" id="L13">    @field:NotBlank(message = &quot;Nome do aquario e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Nome identificador do aquario&quot;, example = &quot;Aquario 01&quot;)
+<span class="nc" id="L15">    val nome: String,</span>
+
+<span class="nc" id="L17">    @Schema(description = &quot;Descricao opcional do aquario&quot;, nullable = true, example = &quot;Aquario comunitario de agua doce&quot;)</span>
+<span class="nc" id="L18">    val descricao: String? = null,</span>
+
+<span class="nc" id="L20">    @field:Positive(message = &quot;Volume deve ser positivo&quot;)</span>
+    @Schema(description = &quot;Capacidade em litros&quot;, nullable = true, example = &quot;120.00&quot;)
+<span class="nc" id="L22">    val volumeLitros: BigDecimal? = null,</span>
+
+<span class="nc" id="L24">    @field:NotNull(message = &quot;Tipo do aquario e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Tipo de agua&quot;, example = &quot;AGUA_DOCE&quot;)
+<span class="nc" id="L26">    val tipo: TipoAquario,</span>
+
+<span class="nc" id="L28">    @Schema(description = &quot;Localizacao fisica na loja&quot;, nullable = true, example = &quot;Corredor 3&quot;)</span>
+<span class="nc" id="L29">    val localizacao: String? = null,</span>
+
+<span class="nc" id="L31">    @Schema(description = &quot;Status atual do aquario. Default: ATIVO&quot;, example = &quot;ATIVO&quot;, nullable = true)</span>
+<span class="nc" id="L32">    val status: StatusAquario? = StatusAquario.ATIVO,</span>
+
+<span class="nc" id="L34">    @field:Positive(message = &quot;Preco deve ser positivo&quot;)</span>
+    @Schema(description = &quot;Preco de venda do aquario (se aplicavel)&quot;, nullable = true, example = &quot;899.90&quot;)
+<span class="nc" id="L36">    val preco: BigDecimal? = null</span>
+<span class="nc" id="L37">)</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

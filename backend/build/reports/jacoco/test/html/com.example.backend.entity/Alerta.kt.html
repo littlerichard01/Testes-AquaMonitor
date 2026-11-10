@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Alerta.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.entity</a> &gt; <span class="el_source">Alerta.kt</span></div><h1>Alerta.kt</h1><pre class="source lang-java linenums">package com.example.backend.entity
+
+import jakarta.persistence.*
+import java.time.LocalDateTime
+
+<span class="nc" id="L6">@Entity</span>
+@Table(name = &quot;alertas&quot;)
+<span class="nc" id="L8">class Alerta(</span>
+<span class="nc" id="L9">    @Id</span>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L11">    var id: Long? = null,</span>
+
+<span class="nc" id="L13">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;tipo&quot;, nullable = false, length = 15)
+<span class="nc" id="L15">    var tipo: TipoAlerta,</span>
+
+<span class="nc" id="L17">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;severidade&quot;, nullable = false, length = 10)
+<span class="nc" id="L19">    var severidade: SeveridadeAlerta,</span>
+
+<span class="nc" id="L21">    @Column(name = &quot;ativo&quot;, nullable = false)</span>
+<span class="nc" id="L22">    var ativo: Boolean = true,</span>
+
+<span class="nc" id="L24">    @Column(name = &quot;criado_em&quot;, nullable = false, updatable = false)</span>
+<span class="nc" id="L25">    var criadoEm: LocalDateTime = LocalDateTime.now(),</span>
+
+<span class="nc" id="L27">    @Column(name = &quot;atualizado_em&quot;, nullable = false)</span>
+<span class="nc" id="L28">    var atualizadoEm: LocalDateTime = LocalDateTime.now(),</span>
+
+<span class="nc" id="L30">    @ManyToOne(fetch = FetchType.LAZY, optional = false)</span>
+    @JoinColumn(name = &quot;aquario_id&quot;, nullable = false)
+<span class="nc" id="L32">    var aquario: Aquario</span>
+<span class="nc" id="L33">) {</span>
+
+    @PreUpdate
+    fun preAtualizar() {
+<span class="nc" id="L37">        atualizadoEm = LocalDateTime.now()</span>
+<span class="nc" id="L38">    }</span>
+<span class="nc" id="L39">}</span>
+
+enum class TipoAlerta {
+<span class="nc" id="L42">    TEMPERATURA,</span>
+<span class="nc" id="L43">    ALIMENTACAO</span>
+}
+
+enum class SeveridadeAlerta {
+<span class="nc" id="L47">    BAIXA,</span>
+<span class="nc" id="L48">    MEDIA,</span>
+<span class="nc" id="L49">    ALTA</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecieRequest.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">EspecieRequest.kt</span></div><h1>EspecieRequest.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import com.example.backend.entity.TipoEspecie
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import java.math.BigDecimal
+
+<span class="nc" id="L9">@Schema(description = &quot;Requisicao para criar ou atualizar uma Especie.&quot;)</span>
+<span class="nc" id="L10">data class EspecieRequest(</span>
+<span class="nc" id="L11">    @field:NotBlank(message = &quot;Nome popular e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Nome popular da especie&quot;, example = &quot;Peixe-palhaco&quot;)
+<span class="nc" id="L13">    val nomePopular: String,</span>
+
+<span class="nc" id="L15">    @Schema(description = &quot;Nome cientifico da especie&quot;, example = &quot;Amphiprion ocellaris&quot;, nullable = true)</span>
+<span class="nc" id="L16">    val nomeCientifico: String? = null,</span>
+
+<span class="nc" id="L18">    @field:NotNull(message = &quot;Tipo da especie e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Categoria taxonomica da especie&quot;, example = &quot;PEIXE&quot;)
+<span class="nc" id="L20">    val tipo: TipoEspecie,</span>
+
+<span class="nc" id="L22">    @Schema(description = &quot;Informacoes gerais sobre a especie&quot;, nullable = true)</span>
+<span class="nc" id="L23">    val descricao: String? = null,</span>
+
+<span class="nc" id="L25">    @Schema(description = &quot;Temperatura minima recomendada em graus Celsius&quot;, example = &quot;24.00&quot;, nullable = true)</span>
+<span class="nc" id="L26">    val temperaturaMinima: BigDecimal? = null,</span>
+
+<span class="nc" id="L28">    @Schema(description = &quot;Temperatura maxima recomendada em graus Celsius&quot;, example = &quot;28.00&quot;, nullable = true)</span>
+<span class="nc" id="L29">    val temperaturaMaxima: BigDecimal? = null</span>
+<span class="nc" id="L30">)</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

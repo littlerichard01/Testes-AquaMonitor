@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecimeMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">EspecimeMapper.kt</span></div><h1>EspecimeMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.EspecimeRequest
+import com.example.backend.dto.EspecimeResponse
+import com.example.backend.entity.Aquario
+import com.example.backend.entity.Especie
+import com.example.backend.entity.Especime
+import com.example.backend.entity.Loja
+import com.example.backend.entity.StatusEspecime
+import org.springframework.stereotype.Component
+import java.time.LocalDate
+
+<span class="nc" id="L13">@Component</span>
+class EspecimeMapper {
+
+    fun paraEntidade(request: EspecimeRequest, especie: Especie, aquario: Aquario?, loja: Loja): Especime {
+<span class="nc" id="L17">        return Especime(</span>
+<span class="nc" id="L18">            identificacao = request.identificacao,</span>
+<span class="nc" id="L19">            preco = request.preco,</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">            status = request.status ?: StatusEspecime.DISPONIVEL,</span>
+<span class="nc" id="L21">            observacoes = request.observacoes,</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">            dataEntrada = request.dataEntrada ?: LocalDate.now(),</span>
+<span class="nc" id="L23">            especie = especie,</span>
+<span class="nc" id="L24">            aquario = aquario,</span>
+<span class="nc" id="L25">            loja = loja</span>
+        )
+    }
+
+    fun atualizarEntidade(request: EspecimeRequest, entidade: Especime, especie: Especie, aquario: Aquario?) {
+<span class="nc" id="L30">        entidade.identificacao = request.identificacao</span>
+<span class="nc" id="L31">        entidade.preco = request.preco</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        entidade.status = request.status ?: StatusEspecime.DISPONIVEL</span>
+<span class="nc" id="L33">        entidade.observacoes = request.observacoes</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        entidade.dataEntrada = request.dataEntrada ?: LocalDate.now()</span>
+<span class="nc" id="L35">        entidade.especie = especie</span>
+<span class="nc" id="L36">        entidade.aquario = aquario</span>
+<span class="nc" id="L37">    }</span>
+
+    fun paraResponse(entidade: Especime): EspecimeResponse {
+<span class="nc" id="L40">        return EspecimeResponse(</span>
+<span class="nc" id="L41">            id = entidade.id!!,</span>
+<span class="nc" id="L42">            identificacao = entidade.identificacao,</span>
+<span class="nc" id="L43">            preco = entidade.preco,</span>
+<span class="nc" id="L44">            status = entidade.status,</span>
+<span class="nc" id="L45">            observacoes = entidade.observacoes,</span>
+<span class="nc" id="L46">            dataEntrada = entidade.dataEntrada,</span>
+<span class="nc" id="L47">            especieId = entidade.especie.id!!,</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            aquarioId = entidade.aquario?.id</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">AuthController.kt</span></div><h1>AuthController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.LojaLoginRequest
+import com.example.backend.dto.LojaRequest
+import com.example.backend.dto.LojaResponse
+import com.example.backend.dto.LoginResponse
+import com.example.backend.service.LojaService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L16">@RestController</span>
+@RequestMapping(&quot;/api/auth&quot;)
+@Tag(
+    name = &quot;Autenticacao&quot;, description = &quot;Endpoints para cadastro e login de lojas (contas de acesso).&quot;
+)
+<span class="nc" id="L21">class AuthController(</span>
+<span class="nc" id="L22">    private val lojaService: LojaService</span>
+) {
+
+    @PostMapping(&quot;/signup&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = &quot;Cadastrar uma nova Loja no sistema&quot;)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Loja cadastrada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos ou email ja cadastrado&quot;)
+        ]
+    )
+    fun cadastrar(@Valid @RequestBody request: LojaRequest): LojaResponse {
+<span class="nc" id="L35">        return lojaService.cadastrar(request)</span>
+    }
+
+    @PostMapping(&quot;/signin&quot;)
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = &quot;Realizar login de uma Loja&quot;)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Login realizado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;401&quot;, description = &quot;Email ou senha incorretos, ou conta inativa&quot;)
+        ]
+    )
+    fun login(@Valid @RequestBody request: LojaLoginRequest): LoginResponse {
+<span class="nc" id="L48">        return lojaService.login(request)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

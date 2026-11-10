@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DispositivoIoT.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.entity</a> &gt; <span class="el_source">DispositivoIoT.kt</span></div><h1>DispositivoIoT.kt</h1><pre class="source lang-java linenums">package com.example.backend.entity
+
+import jakarta.persistence.*
+import java.time.LocalDateTime
+
+<span class="nc" id="L6">@Entity</span>
+@Table(name = &quot;dispositivos_iot&quot;)
+<span class="nc" id="L8">class DispositivoIoT(</span>
+<span class="nc" id="L9">    @Id</span>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L11">    var id: Long? = null,</span>
+
+<span class="nc" id="L13">    @Column(name = &quot;nome&quot;, nullable = false, length = 150)</span>
+<span class="nc" id="L14">    var nome: String,</span>
+
+<span class="nc" id="L16">    @Column(name = &quot;identificacao&quot;, nullable = false, unique = true, length = 150)</span>
+<span class="nc" id="L17">    var identificacao: String,</span>
+
+<span class="nc" id="L19">    @Column(name = &quot;mqtt_topic&quot;, nullable = false, length = 255)</span>
+<span class="nc" id="L20">    var mqttTopic: String,</span>
+
+<span class="nc" id="L22">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;status&quot;, nullable = false, length = 10)
+<span class="nc" id="L24">    var status: StatusDispositivo = StatusDispositivo.OFFLINE,</span>
+
+<span class="nc" id="L26">    @Column(name = &quot;ultima_comunicacao&quot;)</span>
+<span class="nc" id="L27">    var ultimaComunicacao: LocalDateTime? = null,</span>
+
+<span class="nc" id="L29">    @Column(name = &quot;criado_em&quot;, nullable = false, updatable = false)</span>
+<span class="nc" id="L30">    var criadoEm: LocalDateTime = LocalDateTime.now(),</span>
+
+<span class="nc" id="L32">    @Column(name = &quot;atualizado_em&quot;, nullable = false)</span>
+<span class="nc" id="L33">    var atualizadoEm: LocalDateTime = LocalDateTime.now(),</span>
+
+<span class="nc" id="L35">    @ManyToOne(fetch = FetchType.LAZY)</span>
+    @JoinColumn(name = &quot;aquario_id&quot;)
+<span class="nc" id="L37">    var aquario: Aquario? = null,</span>
+
+<span class="nc" id="L39">    @OneToMany(mappedBy = &quot;dispositivoIoT&quot;, cascade = [CascadeType.ALL], orphanRemoval = false)</span>
+<span class="nc" id="L40">    var leiturasTemperatura: MutableList&lt;LeituraTemperatura&gt; = mutableListOf()</span>
+<span class="nc" id="L41">) {</span>
+
+    @PreUpdate
+    fun preAtualizar() {
+<span class="nc" id="L45">        atualizadoEm = LocalDateTime.now()</span>
+<span class="nc" id="L46">    }</span>
+<span class="nc" id="L47">}</span>
+
+enum class StatusDispositivo {
+<span class="nc" id="L50">    ONLINE,</span>
+<span class="nc" id="L51">    OFFLINE,</span>
+<span class="nc" id="L52">    INATIVO</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

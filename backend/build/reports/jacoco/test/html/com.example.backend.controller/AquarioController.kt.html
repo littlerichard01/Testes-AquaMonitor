@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AquarioController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">AquarioController.kt</span></div><h1>AquarioController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.AquarioRequest
+import com.example.backend.dto.AquarioResponse
+import com.example.backend.service.AquarioService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/aquarios&quot;)
+@Tag(
+    name = &quot;Aquarios&quot;,
+    description = &quot;CRUD de Aquarios. Cada aquario pertence exclusivamente a loja autenticada.&quot;
+)
+<span class="nc" id="L24">class AquarioController(</span>
+<span class="nc" id="L25">    private val service: AquarioService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista os aquarios da loja autenticada&quot;,
+        description = &quot;Retorna apenas os aquarios pertencentes a loja do token JWT.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(): ResponseEntity&lt;List&lt;AquarioResponse&gt;&gt; {
+<span class="nc" id="L39">        return ResponseEntity.ok(service.listarTodosDaLoja())</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca um aquario por ID (da loja autenticada)&quot;,
+        description = &quot;Retorna 404 se o ID nao existir ou pertencer a outra loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Aquario encontrado&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Aquario nao encontrado na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID do aquario&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;AquarioResponse&gt; {
+<span class="nc" id="L59">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Cria um novo aquario&quot;,
+        description = &quot;Cadastra um aquario vinculado a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Aquario criado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos na requisicao&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: AquarioRequest): ResponseEntity&lt;AquarioResponse&gt; {
+<span class="nc" id="L75">        val nova = service.criar(request)</span>
+<span class="nc" id="L76">        return ResponseEntity.status(HttpStatus.CREATED).body(nova)</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza um aquario existente&quot;,
+        description = &quot;Atualiza apenas se o aquario pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Aquario atualizado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos na requisicao&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario nao encontrado na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID do aquario que sera atualizado&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: AquarioRequest
+    ): ResponseEntity&lt;AquarioResponse&gt; {
+<span class="nc" id="L95">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui um aquario&quot;,
+        description = &quot;Remove permanentemente apenas se pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Aquario excluido com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario nao encontrado na loja&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID do aquario que sera excluido&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L113">        service.excluir(id)</span>
+<span class="nc" id="L114">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

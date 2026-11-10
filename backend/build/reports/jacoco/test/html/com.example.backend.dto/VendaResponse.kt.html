@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VendaResponse.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">VendaResponse.kt</span></div><h1>VendaResponse.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+<span class="nc" id="L7">@Schema(description = &quot;Resposta contendo os dados de uma Venda registrada.&quot;)</span>
+<span class="nc" id="L8">data class VendaResponse(</span>
+<span class="nc" id="L9">    @Schema(description = &quot;Identificador unico da venda&quot;, example = &quot;1&quot;)</span>
+<span class="nc" id="L10">    val id: Long,</span>
+
+<span class="nc" id="L12">    @Schema(description = &quot;Valor da venda&quot;, example = &quot;150.00&quot;)</span>
+<span class="nc" id="L13">    val valor: BigDecimal,</span>
+
+<span class="nc" id="L15">    @Schema(description = &quot;Data/hora do registro&quot;)</span>
+<span class="nc" id="L16">    val dataVenda: LocalDateTime,</span>
+
+<span class="nc" id="L18">    @Schema(description = &quot;Observacoes&quot;, nullable = true, example = &quot;Pagamento em Pix&quot;)</span>
+<span class="nc" id="L19">    val observacoes: String?,</span>
+
+<span class="nc" id="L21">    @Schema(description = &quot;ID da Loja dona&quot;, example = &quot;1&quot;)</span>
+<span class="nc" id="L22">    val lojaId: Long,</span>
+
+<span class="nc" id="L24">    @Schema(description = &quot;Resumo do Comprador&quot;)</span>
+<span class="nc" id="L25">    val comprador: CompradorResumo,</span>
+
+<span class="nc" id="L27">    @Schema(description = &quot;Resumo do Especime vendido. NULL se a venda for de um Aquario&quot;, nullable = true)</span>
+<span class="nc" id="L28">    val especime: EspecimeResumo?,</span>
+
+<span class="nc" id="L30">    @Schema(description = &quot;Resumo do Aquario vendido. NULL se a venda for de um Especime&quot;, nullable = true)</span>
+<span class="nc" id="L31">    val aquario: AquarioResumo?,</span>
+
+<span class="nc" id="L33">    @Schema(description = &quot;Data e hora do cadastro&quot;)</span>
+<span class="nc" id="L34">    val criadoEm: LocalDateTime,</span>
+
+<span class="nc" id="L36">    @Schema(description = &quot;Data e hora da ultima atualizacao&quot;)</span>
+<span class="nc" id="L37">    val atualizadoEm: LocalDateTime</span>
+)
+
+<span class="nc" id="L40">@Schema(description = &quot;Resumo simplificado de um Comprador (para embutir em responses).&quot;)</span>
+<span class="nc" id="L41">data class CompradorResumo(</span>
+<span class="nc" id="L42">    val id: Long,</span>
+<span class="nc" id="L43">    val nome: String,</span>
+<span class="nc" id="L44">    val cpf: String?</span>
+)
+
+<span class="nc" id="L47">@Schema(description = &quot;Resumo simplificado de um Especime (para embutir em responses).&quot;)</span>
+<span class="nc" id="L48">data class EspecimeResumo(</span>
+<span class="nc" id="L49">    val id: Long,</span>
+<span class="nc" id="L50">    val identificacao: String,</span>
+<span class="nc" id="L51">    val status: com.example.backend.entity.StatusEspecime</span>
+)
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

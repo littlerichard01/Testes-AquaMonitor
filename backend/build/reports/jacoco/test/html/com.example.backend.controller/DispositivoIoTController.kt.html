@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DispositivoIoTController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">DispositivoIoTController.kt</span></div><h1>DispositivoIoTController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.DispositivoIoTRequest
+import com.example.backend.dto.DispositivoIoTResponse
+import com.example.backend.service.DispositivoIoTService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/dispositivos-iot&quot;)
+@Tag(
+    name = &quot;Dispositivos IoT&quot;,
+    description = &quot;CRUD de Dispositivos IoT (ESP32). Um dispositivo pode estar alocado a 1 aquario (opcional). Apenas os alocados a aquarios da loja autenticada aparecem.&quot;
+)
+<span class="nc" id="L24">class DispositivoIoTController(</span>
+<span class="nc" id="L25">    private val service: DispositivoIoTService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista dispositivos IoT alocados a aquarios da loja autenticada&quot;,
+        description = &quot;Por enquanto, dispositivos sem aquario associado nao aparecem em listagens.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(): ResponseEntity&lt;List&lt;DispositivoIoTResponse&gt;&gt; {
+<span class="nc" id="L39">        return ResponseEntity.ok(service.listarTodosDaLoja())</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca um dispositivo por ID&quot;,
+        description = &quot;404 se nao existir ou nao estiver alocado a aquario da loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Dispositivo encontrado&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Dispositivo nao encontrado na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID do dispositivo&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;DispositivoIoTResponse&gt; {
+<span class="nc" id="L59">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Cria um novo dispositivo IoT&quot;,
+        description = &quot;Valida unicidade de identificacao (MAC) e, se informado, que o aquario pertence a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Dispositivo criado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Identificacao duplicada ou aquario de outra loja&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario referenciado nao encontrado na loja&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: DispositivoIoTRequest): ResponseEntity&lt;DispositivoIoTResponse&gt; {
+<span class="nc" id="L76">        val novo = service.criar(request)</span>
+<span class="nc" id="L77">        return ResponseEntity.status(HttpStatus.CREATED).body(novo)</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza um dispositivo existente&quot;,
+        description = &quot;Atualiza apenas se pertencer a loja autenticada (via aquario).&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Atualizado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Dispositivo ou aquario nao encontrado na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID do dispositivo que sera atualizado&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: DispositivoIoTRequest
+    ): ResponseEntity&lt;DispositivoIoTResponse&gt; {
+<span class="nc" id="L96">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui um dispositivo IoT&quot;,
+        description = &quot;Exclui apenas se pertencer a loja autenticada (via aquario).&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Excluido com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Dispositivo nao encontrado na loja&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID do dispositivo que sera excluido&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L114">        service.excluir(id)</span>
+<span class="nc" id="L115">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

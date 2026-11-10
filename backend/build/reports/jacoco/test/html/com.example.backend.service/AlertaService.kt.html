@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlertaService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">AlertaService.kt</span></div><h1>AlertaService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.dto.AlertaRequest
+import com.example.backend.dto.AlertaResponse
+import com.example.backend.entity.Alerta
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.mapper.AlertaMapper
+import com.example.backend.repository.AlertaRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+<span class="nc" id="L12">@Service</span>
+<span class="nc" id="L13">class AlertaService(</span>
+<span class="nc" id="L14">    private val repository: AlertaRepository,</span>
+<span class="nc" id="L15">    private val aquarioService: AquarioService,</span>
+<span class="nc" id="L16">    private val lojaService: LojaService,</span>
+<span class="nc" id="L17">    private val mapper: AlertaMapper</span>
+) {
+
+    fun listarTodosDaLoja(): List&lt;AlertaResponse&gt; {
+<span class="nc" id="L21">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L22">        return repository.findAllByLojaId(lojaAutenticada.id!!).map(mapper::paraResponse)</span>
+    }
+
+    fun buscarPorIdDaLoja(id: Long): AlertaResponse {
+<span class="nc" id="L26">        return mapper.paraResponse(buscarEntidadeDaLojaOuFalhar(id))</span>
+    }
+
+    private fun buscarEntidadeDaLojaOuFalhar(id: Long): Alerta {
+<span class="nc" id="L30">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        return repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L32">            ?: throw RegraNaoEncontradoException(&quot;Alerta com id $id nao foi encontrado na sua loja.&quot;)</span>
+    }
+
+    @Transactional
+    fun criar(request: AlertaRequest): AlertaResponse {
+<span class="nc" id="L37">        val aquario = aquarioService.buscarEntidadeDaLojaOuFalhar(request.aquarioId)</span>
+
+<span class="nc" id="L39">        val entidade = mapper.paraEntidade(request, aquario)</span>
+
+<span class="nc" id="L41">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun atualizar(id: Long, request: AlertaRequest): AlertaResponse {
+<span class="nc" id="L46">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="nc" id="L47">        val aquario = aquarioService.buscarEntidadeDaLojaOuFalhar(request.aquarioId)</span>
+
+<span class="nc" id="L49">        mapper.atualizarEntidade(request, entidade, aquario)</span>
+
+<span class="nc" id="L51">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun excluir(id: Long) {
+<span class="nc" id="L56">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="nc" id="L57">        repository.delete(entidade)</span>
+<span class="nc" id="L58">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

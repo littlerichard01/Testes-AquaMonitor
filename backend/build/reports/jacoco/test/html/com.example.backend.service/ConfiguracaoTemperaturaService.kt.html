@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfiguracaoTemperaturaService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.service</a> &gt; <span class="el_source">ConfiguracaoTemperaturaService.kt</span></div><h1>ConfiguracaoTemperaturaService.kt</h1><pre class="source lang-java linenums">package com.example.backend.service
+
+import com.example.backend.dto.ConfiguracaoTemperaturaRequest
+import com.example.backend.dto.ConfiguracaoTemperaturaResponse
+import com.example.backend.entity.ConfiguracaoTemperatura
+import com.example.backend.exception.ErroValidacaoException
+import com.example.backend.exception.RegraNaoEncontradoException
+import com.example.backend.mapper.ConfiguracaoTemperaturaMapper
+import com.example.backend.repository.ConfiguracaoTemperaturaRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+
+<span class="nc" id="L14">@Service</span>
+<span class="nc" id="L15">class ConfiguracaoTemperaturaService(</span>
+<span class="nc" id="L16">    private val repository: ConfiguracaoTemperaturaRepository,</span>
+<span class="nc" id="L17">    private val aquarioService: AquarioService,</span>
+<span class="nc" id="L18">    private val lojaService: LojaService,</span>
+<span class="nc" id="L19">    private val mapper: ConfiguracaoTemperaturaMapper</span>
+) {
+
+    fun listarTodosDaLoja(): List&lt;ConfiguracaoTemperaturaResponse&gt; {
+<span class="nc" id="L23">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc" id="L24">        return repository.findAllByLojaId(lojaAutenticada.id!!).map(mapper::paraResponse)</span>
+    }
+
+    fun buscarPorIdDaLoja(id: Long): ConfiguracaoTemperaturaResponse {
+<span class="nc" id="L28">        return mapper.paraResponse(buscarEntidadeDaLojaOuFalhar(id))</span>
+    }
+
+    private fun buscarEntidadeDaLojaOuFalhar(id: Long): ConfiguracaoTemperatura {
+<span class="nc" id="L32">        val lojaAutenticada = lojaService.buscarLojaAutenticada()</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        return repository.findByIdAndLojaId(id, lojaAutenticada.id!!)</span>
+<span class="nc" id="L34">            ?: throw RegraNaoEncontradoException(</span>
+<span class="nc" id="L35">                &quot;ConfiguracaoTemperatura com id $id nao foi encontrada na sua loja.&quot;</span>
+            )
+    }
+
+    @Transactional
+    fun criar(request: ConfiguracaoTemperaturaRequest): ConfiguracaoTemperaturaResponse {
+<span class="nc" id="L41">        validarLimites(request.temperaturaMinima, request.temperaturaMaxima)</span>
+<span class="nc" id="L42">        val aquario = aquarioService.buscarEntidadeDaLojaOuFalhar(request.aquarioId)</span>
+
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (repository.existsByAquarioId(aquario.id!!)) {</span>
+<span class="nc" id="L45">            throw ErroValidacaoException(</span>
+<span class="nc" id="L46">                &quot;Ja existe uma configuracao de temperatura para o aquario ${aquario.nome} (id ${aquario.id}).&quot;</span>
+            )
+        }
+
+<span class="nc" id="L50">        val entidade = mapper.paraEntidade(request, aquario)</span>
+<span class="nc" id="L51">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun atualizar(id: Long, request: ConfiguracaoTemperaturaRequest): ConfiguracaoTemperaturaResponse {
+<span class="nc" id="L56">        validarLimites(request.temperaturaMinima, request.temperaturaMaxima)</span>
+<span class="nc" id="L57">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="nc" id="L58">        val novoAquario = aquarioService.buscarEntidadeDaLojaOuFalhar(request.aquarioId)</span>
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (repository.existsByAquarioIdAndIdNot(novoAquario.id!!, id)) {</span>
+<span class="nc" id="L61">            throw ErroValidacaoException(</span>
+<span class="nc" id="L62">                &quot;Ja existe outra configuracao de temperatura associada a este aquario (id ${novoAquario.id}).&quot;</span>
+            )
+        }
+
+<span class="nc" id="L66">        mapper.atualizarEntidade(entidade, request, novoAquario)</span>
+<span class="nc" id="L67">        return mapper.paraResponse(repository.save(entidade))</span>
+    }
+
+    @Transactional
+    fun excluir(id: Long) {
+<span class="nc" id="L72">        val entidade = buscarEntidadeDaLojaOuFalhar(id)</span>
+<span class="nc" id="L73">        repository.delete(entidade)</span>
+<span class="nc" id="L74">    }</span>
+
+    private fun validarLimites(minima: BigDecimal, maxima: BigDecimal) {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (minima.compareTo(maxima) &gt; 0) {</span>
+<span class="nc" id="L78">            throw ErroValidacaoException(</span>
+<span class="nc" id="L79">                &quot;Temperatura minima ($minima) nao pode ser maior que a maxima ($maxima).&quot;</span>
+            )
+        }
+<span class="nc" id="L82">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

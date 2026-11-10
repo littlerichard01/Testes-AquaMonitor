@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaggerConfig.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.config</a> &gt; <span class="el_source">SwaggerConfig.kt</span></div><h1>SwaggerConfig.kt</h1><pre class="source lang-java linenums">package com.example.backend.config
+
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Contact
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.info.License
+import io.swagger.v3.oas.models.security.SecurityRequirement
+import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.servers.Server
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+
+<span class="nc" id="L14">@Configuration</span>
+class SwaggerConfig {
+
+    companion object {
+        private const val BEARER_JWT = &quot;bearerAuth&quot;
+    }
+
+    @Bean
+    fun customOpenAPI(): OpenAPI {
+<span class="nc" id="L23">        return OpenAPI()</span>
+<span class="nc" id="L24">            .addServersItem(</span>
+<span class="nc" id="L25">                Server()</span>
+<span class="nc" id="L26">                    .url(&quot;http://localhost:8081&quot;)</span>
+<span class="nc" id="L27">                    .description(&quot;Servidor local de desenvolvimento&quot;)</span>
+            )
+<span class="nc" id="L29">            .components(</span>
+<span class="nc" id="L30">                Components()</span>
+<span class="nc" id="L31">                    .addSecuritySchemes(</span>
+<span class="nc" id="L32">                        BEARER_JWT,</span>
+<span class="nc" id="L33">                        SecurityScheme()</span>
+<span class="nc" id="L34">                            .type(SecurityScheme.Type.HTTP)</span>
+<span class="nc" id="L35">                            .scheme(&quot;bearer&quot;)</span>
+<span class="nc" id="L36">                            .bearerFormat(&quot;JWT&quot;)</span>
+<span class="nc" id="L37">                            .name(BEARER_JWT)</span>
+<span class="nc" id="L38">                            .description(</span>
+<span class="nc" id="L39">                                &quot;Autenticacao por Bearer Token JWT. &quot; +</span>
+                                    &quot;Acesse POST /api/auth/signin para obter um token, &quot; +
+                                    &quot;depois clique em Authorize e cole o valor (sem a palavra 'Bearer').&quot;
+                            )
+                    )
+            )
+<span class="nc" id="L45">            .addSecurityItem(</span>
+<span class="nc" id="L46">                SecurityRequirement().addList(BEARER_JWT)</span>
+            )
+<span class="nc" id="L48">            .info(</span>
+<span class="nc" id="L49">                Info()</span>
+<span class="nc" id="L50">                    .title(&quot;AquaMonitor - API REST&quot;)</span>
+<span class="nc" id="L51">                    .version(&quot;0.0.1-SNAPSHOT&quot;)</span>
+<span class="nc" id="L52">                    .description(</span>
+<span class="nc" id="L53">                        &quot;Sistema de gerenciamento e monitoramento de lojas de aquarismo. &quot; +</span>
+                            &quot;Inclui CRUD de lojas, aquários, espécies, espécimes, compradores, vendas, alertas, &quot; +
+                            &quot;dispositivos IoT, configurações de temperatura, programações de alimentação e &quot; +
+                            &quot;recebimento de leituras de temperatura via integração MQTT com ESP32.\n\n&quot; +
+                            &quot;**Autenticacao**\n\n&quot; +
+                            &quot;1. Utilize `POST /api/auth/signup` para criar uma conta de loja (publica).\n&quot; +
+                            &quot;2. Utilize `POST /api/auth/signin` para obter um token JWT (publico).\n&quot; +
+                            &quot;3. Clique no botao Authorize no topo da pagina e cole o token.\n&quot; +
+                            &quot;4. Todos os outros endpoints exigem autenticacao via Bearer Token.&quot;
+                    )
+<span class="nc" id="L63">                    .contact(</span>
+<span class="nc" id="L64">                        Contact()</span>
+<span class="nc" id="L65">                            .name(&quot;Projeto Integrador 6º Semestre&quot;)</span>
+<span class="nc" id="L66">                            .url(&quot;https://github.com/littlerichard01/AquaMonitor&quot;)</span>
+                    )
+<span class="nc" id="L68">                    .license(</span>
+<span class="nc" id="L69">                        License()</span>
+<span class="nc" id="L70">                            .name(&quot;MIT License&quot;)</span>
+<span class="nc" id="L71">                            .url(&quot;https://opensource.org/licenses/MIT&quot;)</span>
+                    )
+            )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

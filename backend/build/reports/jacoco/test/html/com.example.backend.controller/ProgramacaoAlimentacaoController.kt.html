@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProgramacaoAlimentacaoController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">ProgramacaoAlimentacaoController.kt</span></div><h1>ProgramacaoAlimentacaoController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.ProgramacaoAlimentacaoRequest
+import com.example.backend.dto.ProgramacaoAlimentacaoResponse
+import com.example.backend.service.ProgramacaoAlimentacaoService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/programacoes-alimentacao&quot;)
+@Tag(
+    name = &quot;Programacoes de Alimentacao&quot;,
+    description = &quot;CRUD de horarios agendados de alimentacao por Aquario.&quot;
+)
+<span class="nc" id="L24">class ProgramacaoAlimentacaoController(</span>
+<span class="nc" id="L25">    private val service: ProgramacaoAlimentacaoService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista as programacoes de alimentacao da loja autenticada&quot;,
+        description = &quot;Ordenadas por horario ASC e nome do aquario.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(): ResponseEntity&lt;List&lt;ProgramacaoAlimentacaoResponse&gt;&gt; {
+<span class="nc" id="L39">        return ResponseEntity.ok(service.listarTodosDaLoja())</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca uma programacao de alimentacao por ID&quot;,
+        description = &quot;404 se nao existir ou pertencer a outra loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Programacao encontrada&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Programacao nao encontrada na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID da programacao de alimentacao&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;ProgramacaoAlimentacaoResponse&gt; {
+<span class="nc" id="L59">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Cria uma nova programacao de alimentacao&quot;,
+        description = &quot;Valida que o aquario pertence a loja autenticada e que o horario esta no formato HH:mm.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Programacao criada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Horario invalido ou dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario referenciado nao encontrado na loja&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: ProgramacaoAlimentacaoRequest)
+        : ResponseEntity&lt;ProgramacaoAlimentacaoResponse&gt; {
+<span class="nc" id="L77">        val nova = service.criar(request)</span>
+<span class="nc" id="L78">        return ResponseEntity.status(HttpStatus.CREATED).body(nova)</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza uma programacao de alimentacao existente&quot;,
+        description = &quot;Atualiza apenas se pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Atualizada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Programacao ou aquario nao encontrado na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID da programacao que sera atualizada&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: ProgramacaoAlimentacaoRequest
+    ): ResponseEntity&lt;ProgramacaoAlimentacaoResponse&gt; {
+<span class="nc" id="L97">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui uma programacao de alimentacao&quot;,
+        description = &quot;Remove apenas se pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Excluida com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Programacao nao encontrada na loja&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID da programacao que sera excluida&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L115">        service.excluir(id)</span>
+<span class="nc" id="L116">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

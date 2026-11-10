@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DispositivoIoTRequest.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">DispositivoIoTRequest.kt</span></div><h1>DispositivoIoTRequest.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import com.example.backend.entity.StatusDispositivo
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
+
+<span class="nc" id="L8">@Schema(description = &quot;Requisicao para criar ou atualizar um DispositivoIoT (ESP32).&quot;)</span>
+<span class="nc" id="L9">data class DispositivoIoTRequest(</span>
+<span class="nc" id="L10">    @field:NotBlank(message = &quot;Nome do dispositivo e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Nome descritivo&quot;, example = &quot;ESP32 Aquario 03&quot;)
+    @Size(max = 100, message = &quot;O nome do dispositivo deve conter no maximo 100 caractares&quot;)
+<span class="nc" id="L13">    val nome: String,</span>
+
+<span class="nc" id="L15">    @field:NotBlank(message = &quot;Identificacao (MAC) e obrigatoria&quot;)</span>
+    @Schema(description = &quot;MAC address ou codigo fisico unico&quot;, example = &quot;A4:CF:12:34:56:78&quot;)
+<span class="nc" id="L17">    val identificacao: String,</span>
+
+<span class="nc" id="L19">    @field:NotBlank(message = &quot;Topico MQTT e obrigatorio&quot;)</span>
+    @Schema(description = &quot;Topico MQTT onde o dispositivo publica leituras&quot;, example = &quot;loja1/aquario3/temperatura&quot;)
+<span class="nc" id="L21">    val mqttTopic: String,</span>
+
+<span class="nc" id="L23">    @Schema(description = &quot;Status: ONLINE / OFFLINE / INATIVO. Default = OFFLINE&quot;, example = &quot;OFFLINE&quot;, nullable = true)</span>
+<span class="nc" id="L24">    val status: StatusDispositivo? = StatusDispositivo.OFFLINE,</span>
+
+<span class="nc" id="L26">    @Schema(description = &quot;ID do Aquario monitorado. NULL se dispositivo nao associado&quot;, nullable = true, example = &quot;3&quot;)</span>
+<span class="nc" id="L27">    val aquarioId: Long? = null</span>
+<span class="nc" id="L28">)</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DispositivoIoTMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">DispositivoIoTMapper.kt</span></div><h1>DispositivoIoTMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.DispositivoIoTRequest
+import com.example.backend.dto.DispositivoIoTResponse
+import com.example.backend.dto.AquarioResumo
+import com.example.backend.entity.Aquario
+import com.example.backend.entity.DispositivoIoT
+import com.example.backend.entity.StatusDispositivo
+import org.springframework.stereotype.Component
+
+<span class="nc" id="L11">@Component</span>
+class DispositivoIoTMapper {
+
+    fun paraEntidade(request: DispositivoIoTRequest, aquario: Aquario?): DispositivoIoT {
+<span class="nc" id="L15">        return DispositivoIoT(</span>
+<span class="nc" id="L16">            nome = request.nome.trim(),</span>
+<span class="nc" id="L17">            identificacao = request.identificacao.trim(),</span>
+<span class="nc" id="L18">            mqttTopic = request.mqttTopic.trim(),</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">            status = request.status ?: StatusDispositivo.OFFLINE,</span>
+<span class="nc" id="L20">            ultimaComunicacao = null,</span>
+<span class="nc" id="L21">            aquario = aquario</span>
+        )
+    }
+
+    fun atualizarEntidade(entidade: DispositivoIoT, request: DispositivoIoTRequest, aquario: Aquario?) {
+<span class="nc" id="L26">        entidade.nome = request.nome.trim()</span>
+<span class="nc" id="L27">        entidade.identificacao = request.identificacao.trim()</span>
+<span class="nc" id="L28">        entidade.mqttTopic = request.mqttTopic.trim()</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        entidade.status = request.status ?: StatusDispositivo.OFFLINE</span>
+<span class="nc" id="L30">        entidade.aquario = aquario</span>
+<span class="nc" id="L31">    }</span>
+
+    fun paraResponse(entidade: DispositivoIoT): DispositivoIoTResponse {
+<span class="nc" id="L34">        return DispositivoIoTResponse(</span>
+<span class="nc" id="L35">            id = entidade.id!!,</span>
+<span class="nc" id="L36">            nome = entidade.nome,</span>
+<span class="nc" id="L37">            identificacao = entidade.identificacao,</span>
+<span class="nc" id="L38">            mqttTopic = entidade.mqttTopic,</span>
+<span class="nc" id="L39">            status = entidade.status,</span>
+<span class="nc" id="L40">            ultimaComunicacao = entidade.ultimaComunicacao,</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">            aquario = entidade.aquario?.let {</span>
+<span class="nc" id="L42">                AquarioResumo(</span>
+<span class="nc" id="L43">                    id = it.id!!,</span>
+<span class="nc" id="L44">                    nome = it.nome,</span>
+<span class="nc" id="L45">                    status = it.status</span>
+<span class="nc" id="L46">                )</span>
+            },
+<span class="nc" id="L48">            criadoEm = entidade.criadoEm,</span>
+<span class="nc" id="L49">            atualizadoEm = entidade.atualizadoEm</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

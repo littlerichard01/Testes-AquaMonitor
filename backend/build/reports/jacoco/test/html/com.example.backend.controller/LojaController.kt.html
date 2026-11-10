@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LojaController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">LojaController.kt</span></div><h1>LojaController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.LojaAtualizacaoRequest
+import com.example.backend.dto.LojaResponse
+import com.example.backend.service.LojaService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/lojas&quot;)
+@Tag(
+    name = &quot;Lojas&quot;,
+    description = &quot;CRUD de Lojas (contas de acesso). O cadastro publico fica em POST /api/auth/signup.&quot;
+)
+<span class="nc" id="L24">class LojaController(</span>
+<span class="nc" id="L25">    private val service: LojaService</span>
+) {
+
+    @GetMapping(&quot;/perfil&quot;)
+    @Operation(
+        summary = &quot;Retorna os dados da loja autenticada&quot;,
+        description = &quot;Busca a loja associada ao token JWT enviado na requisicao.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Dados da loja autenticada&quot;),
+            ApiResponse(
+                responseCode = &quot;401&quot;, description = &quot;Token invalido, expirado ou nao informado&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPerfil(): ResponseEntity&lt;LojaResponse&gt; {
+<span class="nc" id="L43">        return ResponseEntity.ok(service.buscarPerfilAutenticado())</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza uma loja existente&quot;,
+        description = &quot;Sobrescreve os campos da loja com o ID informado. Apenas a propria loja autenticada pode se atualizar.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Loja atualizada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos, email duplicado ou tentativa de alterar outra loja&quot;),
+            ApiResponse(responseCode = &quot;401&quot;, description = &quot;Nao autenticado&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Loja nao encontrada&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID da loja que sera atualizada&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: LojaAtualizacaoRequest
+    ): ResponseEntity&lt;LojaResponse&gt; {
+<span class="nc" id="L63">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui uma loja&quot;,
+        description = &quot;Remove permanentemente uma loja pelo ID. Apenas a propria loja autenticada pode se excluir.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Loja excluida com sucesso (sem corpo de resposta)&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Tentativa de excluir outra loja&quot;),
+            ApiResponse(responseCode = &quot;401&quot;, description = &quot;Nao autenticado&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Loja nao encontrada&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID da loja que sera excluida&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L83">        service.excluir(id)</span>
+<span class="nc" id="L84">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

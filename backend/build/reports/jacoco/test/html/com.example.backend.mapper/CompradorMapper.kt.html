@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompradorMapper.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.mapper</a> &gt; <span class="el_source">CompradorMapper.kt</span></div><h1>CompradorMapper.kt</h1><pre class="source lang-java linenums">package com.example.backend.mapper
+
+import com.example.backend.dto.CompradorRequest
+import com.example.backend.dto.CompradorResponse
+import com.example.backend.entity.Comprador
+import com.example.backend.entity.Loja
+import org.springframework.stereotype.Component
+
+<span class="nc" id="L9">@Component</span>
+class CompradorMapper {
+
+    fun paraEntidade(
+        request: CompradorRequest,
+        loja: Loja
+    ): Comprador {
+<span class="nc" id="L16">        val entidade = Comprador(</span>
+<span class="nc" id="L17">            nome = request.nome.trim(),</span>
+<span class="nc" id="L18">            cpf = request.cpf</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">                ?.trim()</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">                ?.replace(&quot;[^0-9]&quot;.toRegex(), &quot;&quot;)</span>
+<span class="nc bnc" id="L21" title="All 4 branches missed.">                ?.ifBlank { null },</span>
+<span class="nc" id="L22">            email = request.email</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">                ?.trim()</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">                ?.lowercase()</span>
+<span class="nc bnc" id="L25" title="All 4 branches missed.">                ?.ifBlank { null },</span>
+<span class="nc" id="L26">            telefone = request.telefone</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">                ?.trim()</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">                ?.replace(&quot;[^0-9+]&quot;.toRegex(), &quot;&quot;)</span>
+<span class="nc bnc" id="L29" title="All 4 branches missed.">                ?.ifBlank { null },</span>
+<span class="nc" id="L30">            observacoes = request.observacoes</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">                ?.trim()</span>
+<span class="nc bnc" id="L32" title="All 4 branches missed.">                ?.ifBlank { null }</span>
+        )
+
+<span class="nc" id="L35">        entidade.lojas.add(loja)</span>
+<span class="nc" id="L36">        loja.compradores.add(entidade)</span>
+
+<span class="nc" id="L38">        return entidade</span>
+    }
+
+    fun atualizarEntidade(
+        entidade: Comprador,
+        request: CompradorRequest
+    ) {
+<span class="nc" id="L45">        entidade.nome = request.nome.trim()</span>
+<span class="nc" id="L46">        entidade.cpf = request.cpf</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            ?.trim()</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            ?.replace(&quot;[^0-9]&quot;.toRegex(), &quot;&quot;)</span>
+<span class="nc bnc" id="L49" title="All 4 branches missed.">            ?.ifBlank { null }</span>
+<span class="nc" id="L50">        entidade.email = request.email</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            ?.trim()</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            ?.lowercase()</span>
+<span class="nc bnc" id="L53" title="All 4 branches missed.">            ?.ifBlank { null }</span>
+<span class="nc" id="L54">        entidade.telefone = request.telefone</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            ?.trim()</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            ?.replace(&quot;[^0-9+]&quot;.toRegex(), &quot;&quot;)</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">            ?.ifBlank { null }</span>
+<span class="nc" id="L58">        entidade.observacoes = request.observacoes</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            ?.trim()</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">            ?.ifBlank { null }</span>
+<span class="nc" id="L61">    }</span>
+
+    fun paraResponse(entidade: Comprador): CompradorResponse {
+<span class="nc" id="L64">        return CompradorResponse(</span>
+<span class="nc" id="L65">            id = entidade.id!!,</span>
+<span class="nc" id="L66">            nome = entidade.nome,</span>
+<span class="nc" id="L67">            cpf = entidade.cpf,</span>
+<span class="nc" id="L68">            email = entidade.email,</span>
+<span class="nc" id="L69">            telefone = entidade.telefone,</span>
+<span class="nc" id="L70">            observacoes = entidade.observacoes,</span>
+<span class="nc" id="L71">            criadoEm = entidade.criadoEm,</span>
+<span class="nc" id="L72">            atualizadoEm = entidade.atualizadoEm</span>
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

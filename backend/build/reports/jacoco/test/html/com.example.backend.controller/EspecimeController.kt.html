@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecimeController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">EspecimeController.kt</span></div><h1>EspecimeController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.EspecimeRequest
+import com.example.backend.dto.EspecimeResponse
+import com.example.backend.service.EspecimeService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/especimes&quot;)
+@Tag(
+    name = &quot;Especimes&quot;,
+    description = &quot;CRUD de Especimes (criaturas individuais da loja). Cada especime pertence a uma Especie e opcionalmente a um Aquario da loja.&quot;
+)
+<span class="nc" id="L24">class EspecimeController(</span>
+<span class="nc" id="L25">    private val service: EspecimeService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista os especimes da loja autenticada&quot;,
+        description = &quot;Retorna apenas os especimes pertencentes a loja autenticada, com resumo de especie e aquario.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(): ResponseEntity&lt;List&lt;EspecimeResponse&gt;&gt; {
+<span class="nc" id="L39">        return ResponseEntity.ok(service.listarTodosDaLoja())</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca um especime por ID (da loja autenticada)&quot;,
+        description = &quot;404 se o ID nao existir ou nao pertencer a loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Especime encontrado&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Especime nao encontrado na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID do especime&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;EspecimeResponse&gt; {
+<span class="nc" id="L59">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Cria um novo especime&quot;,
+        description = &quot;Cria e associa a loja autenticada. Valida identificacao UNIQUE, especie existente e aquario da loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Especime criado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Identificacao duplicada, especie inexistente, aquario de outra loja ou dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Especie ou aquario referenciado nao encontrado&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: EspecimeRequest): ResponseEntity&lt;EspecimeResponse&gt; {
+<span class="nc" id="L76">        val novo = service.criar(request)</span>
+<span class="nc" id="L77">        return ResponseEntity.status(HttpStatus.CREATED).body(novo)</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza um especime existente&quot;,
+        description = &quot;Atualiza apenas se o especime pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Especime atualizado com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Especime nao encontrado na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID do especime que sera atualizado&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: EspecimeRequest
+    ): ResponseEntity&lt;EspecimeResponse&gt; {
+<span class="nc" id="L96">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = &quot;Exclui um especime&quot;,
+        description = &quot;Remove apenas se pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Especime excluido com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Especime nao encontrado na loja&quot;)
+        ]
+    )
+    fun excluir(
+        @Parameter(description = &quot;ID do especime que sera excluido&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Unit&gt; {
+<span class="nc" id="L114">        service.excluir(id)</span>
+<span class="nc" id="L115">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

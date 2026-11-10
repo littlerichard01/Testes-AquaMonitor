@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LeituraTemperaturaController.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.controller</a> &gt; <span class="el_source">LeituraTemperaturaController.kt</span></div><h1>LeituraTemperaturaController.kt</h1><pre class="source lang-java linenums">package com.example.backend.controller
+
+import com.example.backend.dto.LeituraTemperaturaRequest
+import com.example.backend.dto.LeituraTemperaturaResponse
+import com.example.backend.service.LeituraTemperaturaService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+<span class="nc" id="L18">@RestController</span>
+@RequestMapping(&quot;/api/leituras-temperatura&quot;)
+@Tag(
+    name = &quot;Leituras de Temperatura&quot;,
+    description = &quot;Append-only: apenas criar e consultar leituras. Nao ha endpoints para atualizar ou excluir.&quot;
+)
+<span class="nc" id="L24">class LeituraTemperaturaController(</span>
+<span class="nc" id="L25">    private val service: LeituraTemperaturaService</span>
+) {
+
+    @GetMapping
+    @Operation(
+        summary = &quot;Lista as ultimas leituras de temperatura da loja autenticada&quot;,
+        description = &quot;Retorna as leituras mais recentes (ate 500 por padrao). Use o parametro limite para ajustar.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;, useReturnTypeSchema = true)
+        ]
+    )
+    fun listar(
+        @Parameter(description = &quot;Quantidade maxima de registros retornados (ate 500). Default = 500&quot;)
+        @RequestParam(required = false, defaultValue = &quot;500&quot;) limite: Int
+    ): ResponseEntity&lt;List&lt;LeituraTemperaturaResponse&gt;&gt; {
+<span class="nc" id="L42">        return ResponseEntity.ok(service.listarUltimasDaLoja(limite))</span>
+    }
+
+    @GetMapping(&quot;/por-aquario/{aquarioId}&quot;)
+    @Operation(
+        summary = &quot;Lista ultimas leituras por aquario da loja autenticada&quot;,
+        description = &quot;Retorna as leituras mais recentes de um aquario especifico.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista retornada com sucesso&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Aquario nao pertence a loja autenticada&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun listarPorAquario(
+        @Parameter(description = &quot;ID do aquario&quot;) @PathVariable aquarioId: Long,
+        @Parameter(description = &quot;Limite de registros. Default = 500&quot;)
+        @RequestParam(required = false, defaultValue = &quot;500&quot;) limite: Int
+    ): ResponseEntity&lt;List&lt;LeituraTemperaturaResponse&gt;&gt; {
+<span class="nc" id="L64">        return ResponseEntity.ok(service.listarUltimasPorAquario(aquarioId, limite))</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Busca uma leitura de temperatura por ID&quot;,
+        description = &quot;404 se a leitura nao existir ou pertencer a aquario de outra loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Leitura encontrada&quot;),
+            ApiResponse(
+                responseCode = &quot;404&quot;, description = &quot;Leitura nao encontrada na loja&quot;,
+                content = [Content(schema = Schema(implementation = Any::class))]
+            )
+        ]
+    )
+    fun buscarPorId(
+        @Parameter(description = &quot;ID da leitura de temperatura&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;LeituraTemperaturaResponse&gt; {
+<span class="nc" id="L84">        return ResponseEntity.ok(service.buscarPorIdDaLoja(id))</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = &quot;Registra uma nova leitura de temperatura (append-only)&quot;,
+        description = &quot;Cria e tambem atualiza o campo ultimaComunicacao do DispositivoIoT associado. Nao ha edicao posterior.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;201&quot;, description = &quot;Leitura registrada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos, dispositivo nao pertence a loja ou data futura&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Aquario ou dispositivo nao encontrados na loja&quot;)
+        ]
+    )
+    fun criar(@Valid @RequestBody request: LeituraTemperaturaRequest): ResponseEntity&lt;LeituraTemperaturaResponse&gt; {
+<span class="nc" id="L101">        val nova = service.criar(request)</span>
+<span class="nc" id="L102">        return ResponseEntity.status(HttpStatus.CREATED).body(nova)</span>
+    }
+    @PutMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Atualiza uma leitura de temperatura existente&quot;,
+        description = &quot;Atualiza temperatura, data/hora, aquario e dispositivo. 404 se a leitura nao pertencer a loja.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;200&quot;, description = &quot;Leitura atualizada com sucesso&quot;),
+            ApiResponse(responseCode = &quot;400&quot;, description = &quot;Dados invalidos ou dispositivo nao pertence a loja&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Leitura nao encontrada na loja&quot;)
+        ]
+    )
+    fun atualizar(
+        @Parameter(description = &quot;ID da leitura&quot;) @PathVariable id: Long,
+        @Valid @RequestBody request: LeituraTemperaturaRequest
+    ): ResponseEntity&lt;LeituraTemperaturaResponse&gt; {
+<span class="nc" id="L120">        return ResponseEntity.ok(service.atualizar(id, request))</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @Operation(
+        summary = &quot;Exclui uma leitura de temperatura&quot;,
+        description = &quot;Remove a leitura do banco. 404 se nao pertencer a loja autenticada.&quot;
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = &quot;204&quot;, description = &quot;Leitura excluida com sucesso&quot;),
+            ApiResponse(responseCode = &quot;404&quot;, description = &quot;Leitura nao encontrada na loja&quot;)
+        ]
+    )
+    fun remover(
+        @Parameter(description = &quot;ID da leitura&quot;) @PathVariable id: Long
+    ): ResponseEntity&lt;Void&gt; {
+<span class="nc" id="L137">        service.remover(id)</span>
+<span class="nc" id="L138">        return ResponseEntity.noContent().build()</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

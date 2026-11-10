@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EspecieResponse.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.example.backend.dto</a> &gt; <span class="el_source">EspecieResponse.kt</span></div><h1>EspecieResponse.kt</h1><pre class="source lang-java linenums">package com.example.backend.dto
+
+import com.example.backend.entity.Especie
+import com.example.backend.entity.TipoEspecie
+import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+<span class="nc" id="L9">@Schema(description = &quot;Resposta contendo os dados de uma Especie.&quot;)</span>
+<span class="nc" id="L10">data class EspecieResponse(</span>
+<span class="nc" id="L11">    @Schema(description = &quot;Identificador unico da especie&quot;, example = &quot;1&quot;)</span>
+<span class="nc" id="L12">    val id: Long,</span>
+
+<span class="nc" id="L14">    @Schema(description = &quot;Nome popular da especie&quot;, example = &quot;Peixe-palhaco&quot;)</span>
+<span class="nc" id="L15">    val nomePopular: String,</span>
+
+<span class="nc" id="L17">    @Schema(description = &quot;Nome cientifico da especie&quot;, example = &quot;Amphiprion ocellaris&quot;, nullable = true)</span>
+<span class="nc" id="L18">    val nomeCientifico: String?,</span>
+
+<span class="nc" id="L20">    @Schema(description = &quot;Categoria taxonomica da especie&quot;, example = &quot;PEIXE&quot;)</span>
+<span class="nc" id="L21">    val tipo: TipoEspecie,</span>
+
+<span class="nc" id="L23">    @Schema(description = &quot;Informacoes gerais sobre a especie&quot;, nullable = true)</span>
+<span class="nc" id="L24">    val descricao: String?,</span>
+
+<span class="nc" id="L26">    @Schema(description = &quot;Temperatura minima recomendada em graus Celsius&quot;, example = &quot;24.00&quot;, nullable = true)</span>
+<span class="nc" id="L27">    val temperaturaMinima: BigDecimal?,</span>
+
+<span class="nc" id="L29">    @Schema(description = &quot;Temperatura maxima recomendada em graus Celsius&quot;, example = &quot;28.00&quot;, nullable = true)</span>
+<span class="nc" id="L30">    val temperaturaMaxima: BigDecimal?,</span>
+
+<span class="nc" id="L32">    @Schema(description = &quot;Data e hora em que a especie foi cadastrada&quot;)</span>
+<span class="nc" id="L33">    val criadoEm: LocalDateTime,</span>
+
+<span class="nc" id="L35">    @Schema(description = &quot;Data e hora da ultima atualizacao&quot;)</span>
+<span class="nc" id="L36">    val atualizadoEm: LocalDateTime</span>
+)
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
